@@ -1,0 +1,59 @@
+XF86MonBrightnessDown
+	brightnessctl -q set 10%-
+
+XF86MonBrightnessUp
+	brightnessctl -q set +10%
+
+#XF86AudioRaiseVolume
+#	pactl set-sink-volume @DEFAULT_SINK@ +5%
+#	pamixer -i 5
+
+#XF86AudioLowerVolume
+#	pactl set-sink-volume @DEFAULT_SINK@ -5%
+#	pamixer -d 5
+
+#XF86AudioMute
+#	pactl set-sink-mute @DEFAULT_SINK@ toggle 
+#	pamixer --toggle-mute
+
+XF86Audio{Raise,Lower}Volume  
+  pulsemixer --change-volume {+,-}5  
+ 
+XF86AudioMute  
+  pulsemixer  --toggle-mute
+
+alt + r
+	rofi -show run
+
+alt + shift + r
+	rofi -show drun
+
+super + f
+	firefox
+
+super + c
+	chromium
+
+super + b
+	brave
+
+super + q
+  qutebrowser
+
+super + w
+  camtoggle
+
+alt + shift + e
+	st -e lfub
+
+super + p
+  powermenu
+
+super + m
+	st -e neomutt
+
+Print
+	flameshot gui
+
+super + shift + c
+	st -e calcurse

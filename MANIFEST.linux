@@ -1,0 +1,15 @@
+.tmux.conf|symlink|
+.vimrc|symlink|
+bin|symlink|.local
+.gdbinit|symlink|
+alacritty|symlink|.config
+dunst|symlink|.config
+kitty|symlink|.config
+lf|symlink|.config
+nvim|symlink|.config
+picom|symlink|.config
+rofi|symlink|.config
+ranger|symlink|.config
+sxhkd|symlink|.config
+wallpaper|symlink|Pictures
+.emacs.d|symlink|

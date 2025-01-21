@@ -1,0 +1,3 @@
+#!/bin/bash
+
+brightnessctl -q set +5% && notify-send "🔆 $(brightnessctl | grep -oP '[^()]+%')" -t 1000

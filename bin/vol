@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Get the mute status
+state=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+
+# Check if the state is "no" (unmuted)
+if [ "$state" = "no" ]; then
+    # Print the current volume
+    echo "$(pulsemixer --get-volume | awk '{print $1}')%"
+else
+    # Print "mut" if the state is not "no"
+    echo "mut"
+fi

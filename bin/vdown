@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pulsemixer --change-volume -5 && notify-send "🔊 $(pulsemixer --get-volume | awk '{print $1}')%" -t 1000

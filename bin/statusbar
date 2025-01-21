@@ -1,0 +1,14 @@
+#!/bin/bash
+
+battery () {
+  ~/.local/bin/battery
+}
+
+clock () {
+  date +"%d-%m-%Y %a %H:%M:%S"
+}
+
+while :; do
+  xsetroot -name "$(battery)  :  $(clock)"
+  sleep 1
+done

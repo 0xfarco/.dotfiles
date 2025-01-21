@@ -1,0 +1,97 @@
+#!/bin/sh
+# doom colors
+
+# black=#1c1f24
+# red=#ff6c6b
+# green=#98be65
+# yellow=#da8548
+# blue=#51afef
+# magenta=#c678dd
+# cyan=#5699af
+# white=#202328
+
+
+# dracula colors
+
+black=#21222c
+red=#ff5555
+green=#50fa7b
+yellow=#f1fa8c
+blue=#bd93f9
+magenta=#ff79c6
+cyan=#8be9fd
+white=#f8f8f2
+
+
+# gruvbox colors
+
+# black=#1d2021
+# red=#ea6962
+# green=#a9b665
+# yellow=#d8a657
+# orange=#e78a4e
+# blue=#7daea3
+# magenta=#d3869b
+# cyan=#89b482
+# white=#d4be98
+
+
+# sweetdracula colors
+
+# black=#1a1e21
+# red=#ff6c6b
+# green=#50fa7b
+# yellow=#f1fa8c
+# blue=#bd93f9
+# magenta=#ff6c6b
+# cyan=#8be9fd
+# white=#f8f8f2
+
+
+
+# sweetmars colors
+
+# black=#1a1e21
+# red=#cc241d
+# green=#98971a
+# yellow=#d79921
+# blue=#458588
+# magenta=#b16286
+# cyan=#689d6a
+# white=#a89984
+
+
+# tomorrow colors
+
+# black=#1D1F21
+# red=#fb4934
+# green=#98971a
+# yellow=#d7992a
+# blue=#458588
+# magenta=#b16286
+# cyan=#689d6a
+# white=#373b41
+
+
+# tomorrow-dark colors
+
+# black=#1D1F21
+# red=#a54242
+# green=#8c9440
+# yellow=#de935f
+# blue=#5f819d
+# magenta=#85678f
+# cyan=#5e8d87
+# white=#707880
+
+
+# tomorrow-night colors
+
+# black=#1d1f21
+# red=#cc6666
+# green=#b5bd68
+# yellow=#e6c547
+# blue=#81a2be
+# magenta=#b294bb
+# cyan=#70c0ba
+# white=#373b41

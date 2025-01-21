@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Check if ffmpeg is running
+if pgrep -x "ffmpeg" > /dev/null || pgrep -x "ffplay" > /dev/null; then
+    echo "REC "
+else    
+    echo ""
+fi
+

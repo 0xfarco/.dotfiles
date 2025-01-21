@@ -1,0 +1,19 @@
+#!/bin/sh
+
+BAT=/sys/class/power_supply/BAT1/capacity
+
+if [ ! -f $BAT ]; then
+	exit
+fi
+
+if [ "$(cat /sys/class/power_supply/BAT1/uevent | head -n 4 | tail -n 1 | awk -F = '{print $2}')" = "Charging" ]; then
+	echo "C : $(cat $BAT)"
+else
+	echo "B : $(cat $BAT)"
+fi
+
+if [ "$(cat /sys/class/power_supply/BAT1/capacity)" -lt 20 ] && [ "$(cat /sys/class/power_supply/BAT1/uevent | head -n 4 | tail -n 1 | awk -F = '{print $2}')" = "Discharging" ]; then
+    # Send a notification
+    notify-send -u critical "Battery Warning" "Battery level is below 20% ($(cat /sys/class/power_supply/BAT1/capacity)%)"
+    sleep 10
+fi
