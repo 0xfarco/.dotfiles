@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://github.com/rexim
+
 set -e
 
 SCRIPT_DIR="$( cd "$( dirname "$BASH_SOURCE[0]" )" && pwd )"
