@@ -28,32 +28,32 @@ alt + r
 alt + shift + r
 	rofi -show drun
 
-super + f
+alt + f
 	firefox
 
-super + c
+alt + c
 	chromium
 
-super + b
+alt + b
 	brave
 
-super + q
+alt + q
   qutebrowser
 
-super + w
+alt + shift + w
   camtoggle
 
 alt + shift + e
 	st -e lfub
 
-super + p
+alt + p
   powermenu
 
-super + m
+alt + m
 	st -e neomutt
 
 Print
 	flameshot gui
 
-super + shift + c
+alt + shift + c
 	st -e calcurse
