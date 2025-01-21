@@ -1,3 +1,4 @@
+.xinitrc|symlink|
 .tmux.conf|symlink|
 .vimrc|symlink|
 bin|symlink|.local
