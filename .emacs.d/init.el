@@ -32,9 +32,6 @@
 (add-to-list 'custom-theme-load-path "/home/0xfarco/.emacs.d/themes/")
 (load-theme 'gruber-darker t)
 
-(use-package cl-libify
-	:ensure t)
-
 (use-package which-key
 	:ensure t
 	:config
@@ -125,6 +122,20 @@
 ;; Define the whitespace style.
 (setq-default whitespace-style
               '(face tabs spaces trailing space-before-tab newline indentation empty space-after-tab space-mark tab-mark))
+
+;;;magit
+(use-package dash
+	:ensure t)
+(use-package transient
+	:ensure t)
+(use-package magit
+	:ensure t)
+
+(setq magit-auto-revert-mode nil)
+
+(global-set-key (kbd "C-c m s") 'magit-status)
+(global-set-key (kbd "C-c m l") 'magit-log)
+
 
 ;;; Dired
 ;;(use-package dired
