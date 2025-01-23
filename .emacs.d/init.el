@@ -136,6 +136,9 @@
 (global-set-key (kbd "C-c m s") 'magit-status)
 (global-set-key (kbd "C-c m l") 'magit-log)
 
+;;;vterm
+(use-package vterm
+	:ensure t)
 
 ;;; Dired
 ;;(use-package dired
