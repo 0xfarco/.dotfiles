@@ -29,7 +29,7 @@
 
 (add-to-list 'default-frame-alist `(font . "JetBrainsMono Nerd Font-12"))
 
-(add-to-list 'custom-theme-load-path "/home/0xfarco/.emacs.d/themes/")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 (load-theme 'gruber-darker t)
 
 (use-package which-key
