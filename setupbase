@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -e  # Exit on any error
+
+# ----------- CONFIGURATION -----------
+
+MANDATORY_TOOLS=(
+    base-devel curl wget git polkit sxhkd alacritty rofi feh dunst picom github-cli
+    tlp tlp-runit tlp-rdw thermald thermald-runit lm_sensors lm_sensors-runit
+    libnotify calcurse firefox cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
+    neovim vim nano mpv vlc pcmanfm qbittorrent cronie cronie-runit libqalculate
+    qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf brightnessctl htop
+    slock slop pulseaudio pavucontrol pulsemixer newsboat tesseract
+    tesseract-data-eng ttf-font-awesome ttf-jetbrains-mono-nerd
+    noto-fonts noto-fonts-emoji yazi timeshift unzip
+)
+
+YAY_DIR="$HOME/.local/src/yay-bin"
+DWM_DESKTOP_FILE="./dwm.desktop"
+TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+
+# ----------- FUNCTIONS -----------
+
+command_exists() {
+    command -v "$1" &> /dev/null
+}
+
+install_mandatory_tools() {
+    echo "📦 Installing mandatory tools..."
+    sudo pacman -S --needed "${MANDATORY_TOOLS[@]}"
+}
+
+install_yay() {
+    echo "🔧 Setting up yay (AUR helper)..."
+
+    # Install prerequisites
+    sudo pacman -S --needed git base-devel
+
+    # Clean up old clone if exists
+    if [ -d "$YAY_DIR" ]; then
+        echo "⚠️  Removing existing yay-bin directory..."
+        rm -rf "$YAY_DIR"
+    fi
+
+    mkdir -p "$(dirname "$YAY_DIR")"
+    git clone https://aur.archlinux.org/yay-bin.git "$YAY_DIR"
+    cd "$YAY_DIR"
+    makepkg -si
+    cd -
+}
+
+copy_config_files() {
+    echo "🖼️ Copying dwm.desktop to /usr/share/xsessions..."
+    sudo mkdir -p /usr/share/xsessions
+    sudo cp "$DWM_DESKTOP_FILE" /usr/share/xsessions/dwm.desktop
+
+    echo "🖱️ Copying 30-touchpad.conf to /etc/X11/xorg.conf.d/..."
+    sudo mkdir -p /etc/X11/xorg.conf.d
+    sudo cp "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+}
+
+# ----------- EXECUTION -----------
+
+# Ensure we're on an Arch-based system
+if ! command_exists pacman; then
+    echo "❌ This script is only for Arch-based systems."
+    exit 1
+fi
+
+install_mandatory_tools
+install_yay
+copy_config_files
+
+echo "✅ Setup complete."
