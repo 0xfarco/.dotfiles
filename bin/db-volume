@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Prints the current volume or 🔇 if muted.
+
+case $BLOCK_BUTTON in
+	1) setsid -w -f "$TERMINAL" -e pulsemixer; pkill -RTMIN+10 "${STATUSBAR:-dwmblocks}" ;;
+	2) pulsemixer --id sink-0 --toggle-mute ;;
+	4) pulsemixer --change-volume +5 ;;
+	5) pulsemixer --change-volume -5 ;;
+	3) notify-send "📢 Volume module" "\- Shows volume 🔊, 🔇 if muted.
+- Middle click to mute.
+- Scroll to change." ;;
+	6) setsid -f "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+# Check if muted
+if [ "$(pulsemixer --get-mute)" -eq 1 ]; then
+    echo 🔇
+    exit
+fi
+
+# Get volume (first field from output)
+vol="$(pulsemixer --get-volume | awk '{print $1}')"
+
+# Truncate decimal if any (no external tools)
+vol="${vol%%.*}"
+
+case 1 in
+	$((vol >= 70)) ) icon="🔊" ;;
+	$((vol >= 30)) ) icon="🔉" ;;
+	$((vol >= 1)) ) icon="🔈" ;;
+	* ) echo 🔇 && exit ;;
+esac
+
+echo "$icon $vol%"
