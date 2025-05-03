@@ -31,9 +31,9 @@ for battery in /sys/class/power_supply/BAT?*; do
         *) exit 1 ;;
     esac
 
-	# Show low battery warning if discharging and capacity < 20%
-    if [ "$status_raw" = "Discharging" ] && [ "$capacity" -lt 20 ]; then
-        notify-send -u critical "Battery Warning" "Battery $(basename "$battery") is below 20% ($capacity%)"
+	# Show low battery warning if discharging and capacity < 25%
+    if [ "$status_raw" = "Discharging" ] && [ "$capacity" -lt 25 ]; then
+        notify-send -u critical "Battery Warning" "Battery $(basename "$battery") is below 25% ($capacity%)"
         sleep 10  # Prevent spamming notifications
     fi
 
