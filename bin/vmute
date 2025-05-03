@@ -1,3 +1,0 @@
-#!/bin/bash
-
-pulsemixer  --toggle-mute && notify-send "🔇 Muted" -t 1000
