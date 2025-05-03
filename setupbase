@@ -2,6 +2,11 @@
 
 set -e  # Exit on any error
 
+LOG_FILE="/tmp/setup.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "📋 Logging to $LOG_FILE"
+
 # ----------- CONFIGURATION -----------
 
 MANDATORY_TOOLS=(
@@ -18,6 +23,7 @@ MANDATORY_TOOLS=(
 YAY_DIR="$HOME/.local/src/yay-bin"
 DWM_DESKTOP_FILE="./dwm.desktop"
 TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+CUSTOM_BASH_PROFILE="./append_profile"
 
 # ----------- FUNCTIONS -----------
 
@@ -25,29 +31,32 @@ command_exists() {
     command -v "$1" &> /dev/null
 }
 
+# ----------- Install packages -----------
+
 install_mandatory_tools() {
     echo "📦 Installing mandatory tools..."
     sudo pacman -S --needed "${MANDATORY_TOOLS[@]}"
 }
 
+# ----------- Install yay -----------
+
 install_yay() {
-    echo "🔧 Setting up yay (AUR helper)..."
-
-    # Install prerequisites
-    sudo pacman -S --needed git base-devel
-
-    # Clean up old clone if exists
-    if [ -d "$YAY_DIR" ]; then
-        echo "⚠️  Removing existing yay-bin directory..."
-        rm -rf "$YAY_DIR"
+    if command_exists yay; then
+        echo "✅ yay is already installed."
+        return
     fi
 
+    echo "🔧 Setting up yay (AUR helper)..."
+    sudo pacman -S --needed git base-devel
+    rm -rf "$YAY_DIR"
     mkdir -p "$(dirname "$YAY_DIR")"
     git clone https://aur.archlinux.org/yay-bin.git "$YAY_DIR"
     cd "$YAY_DIR"
     makepkg -si
     cd -
 }
+
+# ----------- Copy config files -----------
 
 copy_config_files() {
     echo "🖼️ Copying dwm.desktop to /usr/share/xsessions..."
@@ -57,6 +66,22 @@ copy_config_files() {
     echo "🖱️ Copying 30-touchpad.conf to /etc/X11/xorg.conf.d/..."
     sudo mkdir -p /etc/X11/xorg.conf.d
     sudo cp "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+}
+
+# ----------- Append to .bash_profile -----------
+
+append_to_profile() {
+    local marker="# BEGIN custom additions"
+    if ! grep -qF "$marker" ~/.bash_profile; then
+        echo "📝 Appending custom bash additions to ~/.bash_profile..."
+        {
+            echo "$marker"
+            cat "$CUSTOM_BASH_PROFILE"
+            echo "# END custom additions"
+        } >> ~/.bash_profile
+    else
+        echo "ℹ️ Custom bash additions already present in ~/.bash_profile. Skipping."
+    fi
 }
 
 # ----------- EXECUTION -----------
@@ -70,5 +95,6 @@ fi
 install_mandatory_tools
 install_yay
 copy_config_files
+append_to_profile
 
 echo "✅ Setup complete."
