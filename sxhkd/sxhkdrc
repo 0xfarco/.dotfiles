@@ -47,7 +47,7 @@ alt + shift + e
 	st -e lfub
 
 alt + p
-  powermenu
+  sysact
 
 alt + m
 	st -e neomutt
