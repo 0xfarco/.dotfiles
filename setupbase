@@ -19,6 +19,7 @@ YAY_DIR="$HOME/.local/src/yay-bin"
 DWM_DESKTOP_FILE="./dwm.desktop"
 TOUCHPAD_CONF_FILE="./30-touchpad.conf"
 CUSTOM_BASH_PROFILE="./append_profile"
+CUSTOM_BASHRC="./append_bashrc"
 
 # ----------- FUNCTIONS -----------
 
@@ -79,6 +80,29 @@ append_to_profile() {
     fi
 }
 
+# ----------- Append to .bashrc -----------
+
+append_to_bashrc() {
+    local marker="# BEGIN custom additions"
+    if ! grep -qF "$marker" ~/.bashrc; then
+        echo "📝 Appending custom bash additions to ~/.bashrc..."
+        {
+            echo "$marker"
+            cat "$CUSTOM_BASHRC"
+            echo "# END custom additions"
+        } >> ~/.bashrc
+    else
+        echo "ℹ️ Custom bash additions already present in ~/.bashrc. Skipping."
+    fi
+}
+
+# ----------- Create Public Recordings Directory -----------
+
+create_recordings_dir() {
+    echo "📁 Creating ~/Public/Recordings directory..."
+    mkdir -p "$HOME/Public/Recordings"
+}
+
 # ----------- EXECUTION -----------
 
 # Ensure we're on an Arch-based system
@@ -91,5 +115,7 @@ install_mandatory_tools
 install_yay
 copy_config_files
 append_to_profile
+append_to_bashrc
+create_recordings_dir
 
 echo "✅ Setup complete."
