@@ -37,7 +37,7 @@ screencast() { \
 	-crf 0 -preset ultrafast -c:a aac \
 	"$HOME/Public/Recordings/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 📺 🎤"
+	updateicon "🔴 [S]"
        	}
 
 video() { ffmpeg \
@@ -48,7 +48,7 @@ video() { ffmpeg \
  	-c:v libx264 -qp 0 -r 30 \
 	"$HOME/Public/Recordings/video-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 📺"
+	updateicon "🔴 [V]"
 	}
 
 webcamhidef() { ffmpeg \
@@ -57,7 +57,7 @@ webcamhidef() { ffmpeg \
 	-video_size 1920x1080 \
 	"$HOME/Public/Recordings/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 📷"
+	updateicon "🔴 [W HD]"
 	}
 
 webcam() { ffmpeg \
@@ -66,7 +66,7 @@ webcam() { ffmpeg \
 	-video_size 640x480 \
 	"$HOME/Public/Recordings/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 📷"
+	updateicon "🔴 [W]"
 	}
 
 
@@ -76,7 +76,7 @@ audio() { \
 	-c:a flac \
 	"$HOME/Public/Recordings/audio-$(date '+%y%m%d-%H%M-%S').flac" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 🎤"
+	updateicon "🔴 [A]"
 	}
 
 askrecording() { \
@@ -110,7 +110,7 @@ videoselected()
 	-c:v libx264 -qp 0 -r 30 \
 	"$HOME/Public/Recordings/box-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
-	updateicon "🔴 🎥"
+	updateicon "🔴 [V S]"
 }
 
 case "$1" in
