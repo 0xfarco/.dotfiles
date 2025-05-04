@@ -2,11 +2,6 @@
 
 set -e  # Exit on any error
 
-LOG_FILE="/tmp/setup.log"
-exec > >(tee -a "$LOG_FILE") 2>&1
-
-echo "📋 Logging to $LOG_FILE"
-
 # ----------- CONFIGURATION -----------
 
 MANDATORY_TOOLS=(
