@@ -5,7 +5,8 @@ set -e  # Exit on any error
 # ----------- CONFIGURATION -----------
 
 MANDATORY_TOOLS=(
-    base-devel curl wget git polkit sxhkd alacritty rofi feh dunst picom github-cli
+    libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr base-devel 
+    curl wget git polkit sxhkd rofi feh dunst picom github-cli
     tlp tlp-runit tlp-rdw thermald thermald-runit lm_sensors lm_sensors-runit
     libnotify calcurse firefox cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc pcmanfm qbittorrent cronie cronie-runit libqalculate
