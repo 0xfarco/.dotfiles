@@ -7,7 +7,7 @@ bin|symlink|.local
 #alacritty|symlink|.config
 dunst|symlink|.config
 #kitty|symlink|.config
-lf|symlink|.config
+#lf|symlink|.config
 nvim|symlink|.config
 picom|symlink|.config
 rofi|symlink|.config
