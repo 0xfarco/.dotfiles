@@ -44,7 +44,7 @@ alt + shift + w
   camtoggle
 
 alt + shift + e
-	st -e lfub
+	st -e yazi
 
 alt + p
   sysact
