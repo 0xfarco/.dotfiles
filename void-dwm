@@ -1,0 +1,176 @@
+#!/bin/bash
+
+set -e  # Exit on any error
+
+# ----------- CONFIGURATION -----------
+
+XORG_TOOLS=(
+    libX11-devel libXft-devel libXinerama-devel xorg-minimal xinit xrandr
+)
+
+PULSEAUDIO_TOOLS=(
+    pulseaudio pavucontrol pulsemixer
+)
+
+FONT_TOOLS=(
+    font-awesome noto-fonts-ttf noto-fonts-emoji
+)
+
+OTHER_TOOLS=(
+    base-devel dbus linux-headers mesa mesa-intel-dri xf86-video-intel
+    make NetworkManager curl wget git polkit sxhkd rofi feh dunst picom
+    github-cli libnotify calcurse firefox chromium cmake nsxiv flameshot
+    ffmpeg ffmpegthumbnailer neovim vim nano mpv vlc pcmanfm qbittorrent
+    cronie libqalculate qalculate-qt man-db xclip zathura zathura-pdf-mupdf
+    fzf brightnessctl htop slock slop newsboat tesseract tesseract-ocr-eng
+    yazi unzip
+)
+
+ALL_TOOLS=(
+    "${XORG_TOOLS[@]}"
+    "${PULSEAUDIO_TOOLS[@]}"
+    "${FONT_TOOLS[@]}"
+    "${POWER_TOOLS[@]}"
+    "${OTHER_TOOLS[@]}"
+)
+
+SRC_DIR="$HOME/.local/src"
+DWM_DESKTOP_FILE="./dwm.desktop"
+TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+CUSTOM_BASH_PROFILE="./append_profile"
+CUSTOM_BASHRC="./append_bashrc"
+
+# ----------- FUNCTIONS -----------
+
+command_exists() {
+    command -v "$1" &> /dev/null
+}
+
+install_tool_group() {
+    local name="$1"
+    shift
+    local tools=("$@")
+    echo "📦 Installing $name..."
+    sudo xbps-install -Sy --yes "${tools[@]}"
+}
+
+install_mandatory_tools() {
+    install_tool_group "Xorg Tools" "${XORG_TOOLS[@]}"
+    install_tool_group "PulseAudio Tools" "${PULSEAUDIO_TOOLS[@]}"
+    install_tool_group "Font Tools" "${FONT_TOOLS[@]}"
+    install_tool_group "Power Management Tools" "${POWER_TOOLS[@]}"
+    install_tool_group "Other Tools" "${OTHER_TOOLS[@]}"
+}
+
+copy_config_files() {
+    echo "🖼️ Copying dwm.desktop to /usr/share/xsessions..."
+    sudo mkdir -p /usr/share/xsessions
+    sudo cp "$DWM_DESKTOP_FILE" /usr/share/xsessions/dwm.desktop
+
+    echo "🖱️ Copying 30-touchpad.conf to /etc/X11/xorg.conf.d/..."
+    sudo mkdir -p /etc/X11/xorg.conf.d
+    sudo cp "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+}
+
+append_to_profile() {
+    local marker="# BEGIN custom additions"
+    if ! grep -qF "$marker" ~/.bash_profile; then
+        echo "📝 Appending custom bash additions to ~/.bash_profile..."
+        {
+            echo "$marker"
+            cat "$CUSTOM_BASH_PROFILE"
+            echo "# END custom additions"
+        } >> ~/.bash_profile
+    else
+        echo "ℹ️ Custom bash additions already present in ~/.bash_profile. Skipping."
+    fi
+}
+
+append_to_bashrc() {
+    local marker="# BEGIN custom additions"
+    if ! grep -qF "$marker" ~/.bashrc; then
+        echo "📝 Appending custom bash additions to ~/.bashrc..."
+        {
+            echo "$marker"
+            cat "$CUSTOM_BASHRC"
+            echo "# END custom additions"
+        } >> ~/.bashrc
+    else
+        echo "ℹ️ Custom bash additions already present in ~/.bashrc. Skipping."
+    fi
+}
+
+create_recordings_dir() {
+    echo "📁 Creating ~/Public/Recordings directory..."
+    mkdir -p "$HOME/Public/Recordings"
+}
+
+install_nerd_font() {
+    local url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    local zip_file="$tmp_dir/JetBrainsMono.zip"
+    local extract_dir="$tmp_dir/JetBrainsMono"
+
+    echo "⬇️ Downloading JetBrainsMono Nerd Font..."
+    wget -q --show-progress -O "$zip_file" "$url"
+
+    echo "📦 Extracting JetBrainsMono.zip..."
+    unzip -q "$zip_file" -d "$extract_dir"
+
+    echo "📂 Moving JetBrainsMono fonts to /usr/share/fonts/JetBrainsMono..."
+    sudo mkdir -p /usr/share/fonts/JetBrainsMono
+    sudo cp -r "$extract_dir"/* /usr/share/fonts/JetBrainsMono/
+
+    echo "🔄 Updating font cache..."
+    sudo fc-cache -fv
+
+    echo "✅ JetBrainsMono Nerd Font installed."
+    rm -rf "$tmp_dir"
+}
+
+# ----------- Clone and Build Suckless Tools -----------
+
+clone_and_build_suckless() {
+    echo "🔧 Cloning and building Suckless tools..."
+
+    declare -A SUCKLESS_REPOS=(
+        [dwm]="https://github.com/0xfarco/dwm"
+        [dwmblocks]="https://github.com/0xfarco/dwmblocks"
+        [dmenu]="https://github.com/0xfarco/dmenu"
+        [st]="https://github.com/0xfarco/st"
+    )
+
+    mkdir -p "$SRC_DIR"
+    for name in "${!SUCKLESS_REPOS[@]}"; do
+        repo="${SUCKLESS_REPOS[$name]}"
+        dest="$SRC_DIR/$name"
+
+        echo "📥 Cloning $name..."
+        rm -rf "$dest"
+        git clone "$repo" "$dest"
+
+        echo "⚙️ Building and installing $name..."
+        cd "$dest"
+        make
+        sudo make clean install
+        cd -
+    done
+}
+
+# ----------- EXECUTION -----------
+
+if ! command_exists xbps-install; then
+    echo "❌ This script is only for Void Linux."
+    exit 1
+fi
+
+install_mandatory_tools
+install_nerd_font
+copy_config_files
+append_to_profile
+append_to_bashrc
+create_recordings_dir
+clone_and_build_suckless
+
+echo "✅ Setup complete."
