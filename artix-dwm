@@ -8,12 +8,16 @@ XORG_TOOLS=(
     libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr
 )
 
-PULSEAUDIO_TOOLS=(
-    pulseaudio pavucontrol pulsemixer
+#PULSEAUDIO_TOOLS=(
+#    pulseaudio pavucontrol pulsemixer
+#)
+
+PIPEWIRE_TOOLS=(
+    pipewire pipewire-pulse wireplumber pipewire-alsa pavucontrol pulsemixer
 )
 
 FONT_TOOLS=(
-    ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
+    ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu
 )
 
 POWER_TOOLS=(
@@ -27,12 +31,12 @@ OTHER_TOOLS=(
     libnotify calcurse firefox cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc pcmanfm qbittorrent cronie cronie-runit libqalculate
     qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf brightnessctl htop
-    slock slop newsboat tesseract tesseract-data-eng yazi timeshift unzip
+    slock slop newsboat tesseract tesseract-data-eng yazi unzip
 )
 
 ALL_TOOLS=(
     "${XORG_TOOLS[@]}"
-    "${PULSEAUDIO_TOOLS[@]}"
+    "${PIPEWIRE_TOOLS[@]}"
     "${FONT_TOOLS[@]}"
     "${POWER_TOOLS[@]}"
     "${OTHER_TOOLS[@]}"
