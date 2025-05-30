@@ -65,7 +65,7 @@ install_tool_group() {
 
 install_mandatory_tools() {
     install_tool_group "Xorg Tools" "${XORG_TOOLS[@]}"
-    install_tool_group "PulseAudio Tools" "${PULSEAUDIO_TOOLS[@]}"
+    install_tool_group "Pipewire Tools" "${PIPEWIRE_TOOLS[@]}"
     install_tool_group "Font Tools" "${FONT_TOOLS[@]}"
     install_tool_group "Power Management Tools" "${POWER_TOOLS[@]}"
     install_tool_group "Other Tools" "${OTHER_TOOLS[@]}"
