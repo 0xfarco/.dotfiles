@@ -1,3 +1,6 @@
+/usr/bin/pipewire &
+/usr/bin/pipewire-pulse &
+/usr/bin/wireplumber &
 dwmblocks &
 picom &
 #xautolock -time 5 -locker slock &
