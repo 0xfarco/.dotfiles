@@ -5,8 +5,8 @@
 case $BLOCK_BUTTON in
 	1) setsid -w -f "$TERMINAL" -e pulsemixer; pkill -RTMIN+10 "${STATUSBAR:-dwmblocks}" ;;
 	2) pulsemixer --id sink-0 --toggle-mute ;;
-	4) pulsemixer --change-volume +5 ;;
-	5) pulsemixer --change-volume -5 ;;
+	4) pulsemixer --change-volume +1 ;;
+	5) pulsemixer --change-volume -1 ;;
 	3) notify-send "📢 Volume module" "\- Shows volume 🔊, 🔇 if muted.
 - Middle click to mute.
 - Scroll to change." ;;
