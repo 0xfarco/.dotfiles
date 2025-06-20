@@ -19,8 +19,8 @@ FONT_TOOLS=(
 OTHER_TOOLS=(
     base-devel dbus linux-headers mesa mesa-intel-dri xf86-video-intel
     make NetworkManager curl wget git polkit sxhkd rofi feh dunst picom
-    github-cli libnotify calcurse firefox chromium cmake nsxiv flameshot
-    ffmpeg ffmpegthumbnailer neovim vim nano mpv vlc pcmanfm qbittorrent
+    github-cli libnotify calcurse  chromium cmake nsxiv flameshot
+    ffmpeg ffmpegthumbnailer neovim vim nano mpv vlc qbittorrent
     cronie libqalculate qalculate-qt man-db xclip zathura zathura-pdf-mupdf
     fzf brightnessctl htop slock slop newsboat tesseract tesseract-ocr-eng
     yazi unzip lm_sensors tlp thermald
