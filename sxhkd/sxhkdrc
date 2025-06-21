@@ -1,59 +1,47 @@
 XF86MonBrightnessDown
-	brightnessctl -q set 10%-
+  xbacklight -dec 5
 
 XF86MonBrightnessUp
-	brightnessctl -q set +10%
-
-#XF86AudioRaiseVolume
-#	pactl set-sink-volume @DEFAULT_SINK@ +5%
-#	pamixer -i 5
-
-#XF86AudioLowerVolume
-#	pactl set-sink-volume @DEFAULT_SINK@ -5%
-#	pamixer -d 5
-
-#XF86AudioMute
-#	pactl set-sink-mute @DEFAULT_SINK@ toggle 
-#	pamixer --toggle-mute
+  xbacklight -inc 5
 
 XF86Audio{Raise,Lower}Volume  
-  pulsemixer --change-volume {+,-}5  
+  pulsemixer --change-volume {+,-}1  
  
 XF86AudioMute  
   pulsemixer  --toggle-mute
 
 alt + r
-	rofi -show run
+  rofi -show run
 
 alt + shift + r
-	rofi -show drun
+  rofi -show drun
 
 alt + f
-	firefox
+  librewolf-bin
 
-alt + c
-	chromium
+alt + shift + f
+  librewolf-bin --private-window
 
 alt + b
-	brave
+  brave
 
-alt + q
-  qutebrowser
+alt + shift + b
+  brave --incognito
 
 alt + shift + w
   camtoggle
 
 alt + shift + e
-	st -e yazi
+  st -e yazi
 
 alt + p
-  sysact
+  powermenu
 
-alt + m
-	st -e neomutt
+alt + shift + m
+  st -e calcurse
 
 Print
-	flameshot gui
+  flameshot gui
 
-alt + shift + c
-	st -e calcurse
+alt + shift + n
+  st -e nmtui
