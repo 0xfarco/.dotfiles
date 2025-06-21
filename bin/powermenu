@@ -1,13 +1,13 @@
 #! /bin/sh
 
-chosen=$(printf "  Power Off\n  Restart\n  Suspend\n  Hibernate\n  Log Out\n  Lock" | rofi -dmenu -i -theme-str '@import "power.rasi"')
+chosen=$(printf "  Power Off\n  Restart\n  Suspend\n  Hibernate\n󰠻  Display Off\n  Lock" | rofi -dmenu -i -theme-str '@import "power.rasi"')
 
 case "$chosen" in
 	"  Power Off") loginctl poweroff ;;
 	"  Restart") loginctl reboot ;;
-	"  Suspend") systemctl suspend-then-hibernate ;;
+	"  Suspend") loginctl suspend-then-hibernate ;;
 	"  Hibernate") loginctl hibernate ;;
-	"  Log Out") bspc quit ;;
+  "󰠻  Display Off") xset dpms force off ;;
 	"  Lock") slock ;;
 	*) exit 1 ;;
 esac
