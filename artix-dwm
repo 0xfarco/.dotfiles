@@ -137,7 +137,7 @@ clone_and_build_suckless() {
 
     declare -A SUCKLESS_REPOS=(
         [dwm]="https://github.com/0xfarco/dwm"
-        [dwmblocks]="https://github.com/0xfarco/dwmblocks"
+        [slstatus]="https://github.com/0xfarco/slstatus"
         [dmenu]="https://github.com/0xfarco/dmenu"
         [st]="https://github.com/0xfarco/st"
     )
