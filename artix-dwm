@@ -30,7 +30,7 @@ OTHER_TOOLS=(
     base-devel curl wget git polkit sxhkd rofi feh dunst picom github-cli
     libnotify calcurse cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc qbittorrent cronie cronie-runit libqalculate
-    qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf brightnessctl htop
+    qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop
     slock slop newsboat tesseract tesseract-data-eng yazi unzip
 )
 
