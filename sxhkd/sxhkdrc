@@ -37,8 +37,11 @@ alt + shift + e
 alt + p
   powermenu
 
-alt + shift + m
+alt + m
   st -e calcurse
+
+alt + shift + m
+  st -e notify-send "Appointments" "$(calcurse -d 3)"
 
 Print
   flameshot gui
