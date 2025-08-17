@@ -1,0 +1,45 @@
+#!/bin/bash
+# This script toggles NVIDIA GPU by creating/removing persistent blacklist and udev rule files.
+# Changes take effect after a manual reboot.
+
+BLACKLIST_FILE="/etc/modprobe.d/blacklist-nvidia.conf"
+UDEV_RULES_FILE="/lib/udev/rules.d/50-remove-nvidia.rules"
+
+toggle_nvidia() {
+  if lsmod | grep -q '^nvidia'; then
+    echo "Disabling NVIDIA GPU..."
+
+    # Create persistent udev rules file for device removal
+    sudo tee "$UDEV_RULES_FILE" > /dev/null << EOF
+# Remove NVIDIA USB xHCI Host Controller devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{power/control}="auto", ATTR{remove}="1"
+# Remove NVIDIA USB Type-C UCSI devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{power/control}="auto", ATTR{remove}="1"
+# Remove NVIDIA Audio devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto", ATTR{remove}="1"
+# Finally, remove the NVIDIA dGPU
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"
+EOF
+
+    # Create persistent blacklist file
+    sudo tee "$BLACKLIST_FILE" > /dev/null << EOF
+blacklist nouveau
+blacklist nvidia
+blacklist nvidia_drm
+blacklist nvidia_uvm
+blacklist nvidia_modeset
+EOF
+
+    echo "NVIDIA GPU disabled and blacklisted. Please reboot your system to apply changes."
+  else
+    echo "Enabling NVIDIA GPU..."
+
+    # Remove persistent udev rules and blacklist files
+    sudo rm -f "$UDEV_RULES_FILE" "$BLACKLIST_FILE"
+
+    echo "NVIDIA GPU enabled. Please reboot your system to apply changes."
+  fi
+}
+
+toggle_nvidia
+
