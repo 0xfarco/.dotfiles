@@ -81,7 +81,7 @@ install_yay() {
     sudo pacman -S --needed git base-devel
     rm -rf "$YAY_DIR"
     mkdir -p "$(dirname "$YAY_DIR")"
-    git clone https://aur.archlinux.org/yay-bin.git "$YAY_DIR"
+    git clone https://aur.archlinux.org/yay.git "$YAY_DIR"
     cd "$YAY_DIR"
     makepkg -si
     cd -
