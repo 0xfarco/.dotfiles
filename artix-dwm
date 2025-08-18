@@ -42,7 +42,7 @@ ALL_TOOLS=(
     "${OTHER_TOOLS[@]}"
 )
 
-YAY_DIR="$HOME/.local/src/yay-bin"
+YAY_DIR="$HOME/.local/src/yay"
 SRC_DIR="$HOME/.local/src"
 DWM_DESKTOP_FILE="./dwm.desktop"
 TOUCHPAD_CONF_FILE="./30-touchpad.conf"
