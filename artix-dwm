@@ -167,7 +167,7 @@ if ! command_exists pacman; then
 fi
 
 install_mandatory_tools
-install_yay
+# install_yay
 copy_config_files
 append_to_profile
 append_to_bashrc
