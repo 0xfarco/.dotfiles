@@ -1,0 +1,111 @@
+#!/bin/bash
+
+CONFIG_DIR="/home/farco/Public/protonvpn-configs"
+CRED_FILE="/home/farco/.cred"
+TMP_CONFIG="/tmp/protonvpn_temp.ovpn"
+PID_FILE="/tmp/protonvpn_pid"
+STATUS_FILE="/tmp/protonvpn-status"
+
+DMENU="dmenu -i -p"
+
+update_status() {
+  echo "$1" > "$STATUS_FILE"
+}
+
+get_vpn_pid() {
+  [[ -f "$PID_FILE" ]] && cat "$PID_FILE" || echo ""
+}
+
+is_vpn_running() {
+  local pid=$(get_vpn_pid)
+  [[ -n "$pid" && -d /proc/$pid ]]
+}
+
+stop_vpn() {
+  local pid=$(get_vpn_pid)
+  if [[ -n "$pid" ]]; then
+    sudo kill -SIGTERM "$pid"
+    sleep 2
+    if ! kill -0 "$pid" 2>/dev/null; then
+      update_status "D"
+      rm -f "$TMP_CONFIG" "$PID_FILE"
+      notify-send "VPN" "VPN stopped"
+      return 0
+    else
+      notify-send "VPN" "Failed to stop VPN"
+      return 1
+    fi
+  else
+    notify-send "VPN" "VPN is not running"
+  fi
+}
+
+select_vpn_config() {
+  local configs=("$CONFIG_DIR"/*.ovpn)
+  if [[ ${#configs[@]} -eq 0 ]]; then
+    notify-send "VPN" "No .ovpn configs found in $CONFIG_DIR"
+    exit 1
+  fi
+  
+  local options=""
+  for f in "${configs[@]}"; do
+    options+=$(basename "$f")$'\n'
+  done
+
+  local choice=$(echo -e "$options" | $DMENU "Select VPN config:")
+  if [[ -z "$choice" ]]; then
+    notify-send "VPN" "No selection made, exiting."
+    exit 1
+  fi
+
+  for f in "${configs[@]}"; do
+    [[ $(basename "$f") == "$choice" ]] && OVPN_FILE="$f"
+  done
+}
+
+start_vpn() {
+  sed "/^auth-user-pass/d" "$OVPN_FILE" > "$TMP_CONFIG"
+  echo "auth-user-pass $CRED_FILE" >> "$TMP_CONFIG"
+  echo "auth-nocache" >> "$TMP_CONFIG"
+
+  sudo -A openvpn --config "$TMP_CONFIG" --daemon
+
+  sleep 5
+
+  local pid=$(pgrep -f "$TMP_CONFIG" | head -n1)
+  if [[ -n "$pid" ]]; then
+    echo "$pid" > "$PID_FILE"
+    update_status "C"
+    notify-send "VPN" "VPN connected"
+  else
+    update_status "D"
+    notify-send "VPN" "Failed to connect VPN"
+    rm -f "$TMP_CONFIG" "$PID_FILE"
+    exit 1
+  fi
+}
+
+if [[ ! -f "$CRED_FILE" ]]; then
+  notify-send "VPN" "Credentials file $CRED_FILE not found"
+  exit 1
+fi
+
+if [[ ! -d "$CONFIG_DIR" ]]; then
+  notify-send "VPN" "Config directory $CONFIG_DIR not found"
+  exit 1
+fi
+
+if is_vpn_running; then
+  resp=$(echo -e "No\nYes" | $DMENU "VPN is running. Disconnect?")
+  if [[ "$resp" == "Yes" ]]; then
+    stop_vpn
+  else
+    notify-send "VPN" "VPN remains connected"
+  fi
+  exit 0
+else
+  select_vpn_config
+  update_status ".."
+  start_vpn
+fi
+
