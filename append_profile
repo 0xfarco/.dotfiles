@@ -1,7 +1,7 @@
 export PATH=$PATH:$HOME/.local/bin
 export EDITOR="vim"
 export TERMINAL="st"
-
+export SUDO_ASKPASS="$HOME/.local/bin/dmenupass"
 
 # Automatically run startx
 
