@@ -10,41 +10,42 @@ XF86Audio{Raise,Lower}Volume
 XF86AudioMute  
   pulsemixer  --toggle-mute
 
-alt + r
+super + s
   rofi -show run
 
-alt + shift + r
+super + shift + s
   rofi -show drun
 
-alt + f
+super + w
   librewolf
 
-alt + shift + f
+super + shift + w
   librewolf --private-window
 
-alt + b
+super + v
   brave
 
-alt + shift + b
+super + shift + v
   brave --incognito
 
-alt + shift + w
+super + shift + d
   camtoggle
 
-alt + shift + e
+super + shift + e
   st -e yazi
 
-alt + p
+super + shift + p
   powermenu
 
-alt + m
+super + g
   st -e calcurse
 
-alt + shift + m
+super + shift + g
   notify-send "Appointments" "$(calcurse -d 3)"
 
 Print
   flameshot gui
 
-alt + shift + n
+super + shift + n
   st -e nmtui
+
