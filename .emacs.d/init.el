@@ -49,20 +49,16 @@
 (ido-ubiquitous-mode 1)
 
 (global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
-
-(global-set-key (kbd "M-x") 'smex)
 ;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 ;; This is your old M-x.
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
-;; (use-package projectile
-;;   :ensure t
-;;   :init
-;;   (projectile-mode +1)
-;;   :bind (:map projectile-mode-map
-;;               ("s-p" . projectile-command-map)
-;;               ("C-c p" . projectile-command-map)))
+(use-package projectile
+    :ensure t
+    :init
+    (projectile-mode +1)
+    :bind (:map projectile-mode-map
+                  ("C-c p" . projectile-command-map)))
 
 ;;; c-mode
 ;; (setq-default c-basic-offset 4
@@ -76,6 +72,52 @@
 (add-hook 'c-mode-hook (lambda ()
                          (interactive)
                          (c-toggle-comment-style -1)))
+
+;; if you want to change prefix for lsp-mode keybindings.
+(setq lsp-keymap-prefix "s-l")
+
+(use-package eldoc
+  :ensure t)
+(setq lsp-eldoc-render-all t)
+
+;; eglot 
+(use-package eglot
+  :ensure t
+  :config
+  (add-to-list 'eglot-server-programs '((c-mode c++-mode) "clangd"))
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure))
+
+;; Company (completion frontend)
+(use-package company
+  :ensure t
+  :bind (:map company-mode-map
+              ("M-/" . company-complete-common-or-cycle)) ;; override conflict
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (setq company-show-numbers t
+        company-minimum-prefix-length 1
+        company-idle-delay 0.5))
+
+(use-package company-box
+  :ensure t
+  :hook (company-mode . company-box-mode))
+
+;; Flycheck (on-the-fly linting)
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-display-errors-function
+        #'flycheck-display-error-messages-unless-error-list
+        flycheck-indication-mode nil))
+
+(use-package flycheck-pos-tip
+  :ensure t
+  :after flycheck
+  :config
+  (flycheck-pos-tip-mode))
 
 (require 'basm-mode)
 
@@ -103,7 +145,7 @@
 (add-hook 'c++-mode-hook 'rc/set-up-whitespace-handling)
 (add-hook 'c-mode-hook 'rc/set-up-whitespace-handling)
 (add-hook 'simpc-mode-hook 'rc/set-up-whitespace-handling)
-(add-hook 'emacs-lisp-mode 'rc/set-up-whitespace-handling)
+(add-hook 'emacs-lisp-mode-hook 'rc/set-up-whitespace-handling)
 (add-hook 'java-mode-hook 'rc/set-up-whitespace-handling)
 (add-hook 'lua-mode-hook 'rc/set-up-whitespace-handling)
 (add-hook 'rust-mode-hook 'rc/set-up-whitespace-handling)
@@ -154,24 +196,14 @@
 ;;; helm
 (use-package helm
 	:ensure t)
-(use-package helm-git-grep
-	:ensure t)
 (use-package helm-ls-git
 	:ensure t)
 
 (setq helm-ff-transformer-show-only-basename nil)
 
-(global-set-key (kbd "C-c h t") 'helm-cmd-t)
-(global-set-key (kbd "C-c h g") 'helm-git-grep)
 (global-set-key (kbd "C-c h l") 'helm-ls-git-ls)
 (global-set-key (kbd "C-c h f") 'helm-find)
-(global-set-key (kbd "C-c h a") 'helm-org-agenda-files-headings)
 (global-set-key (kbd "C-c h r") 'helm-recentf)
-;; Invoke `helm-git-grep' from isearch.
-;; (define-key isearch-mode-map (kbd "C-c h g") 'helm-git-grep-from-isearch)
-;; Invoke `helm-git-grep' from other helm.
-;; (eval-after-load 'helm
-;;   '(define-key helm-map (kbd "C-c h g") 'helm-git-grep-from-helm))
 
 ;;; yasnippet
 (use-package yasnippet
@@ -197,6 +229,11 @@
 	:ensure t)
 (add-hook 'after-init-hook 'global-company-mode)
 
+(add-hook 'tuareg-mode-hook
+          (lambda ()
+            (interactive)
+            (company-mode 0)))
+
 ;;; Move Text
 (use-package move-text
 	:ensure t)
@@ -205,9 +242,8 @@
 
 (use-package go-mode
 	:ensure t)
-;; (add-to-list 'load-path "/place/where/you/put/it/")
-;; (autoload 'go-mode "go-mode" nil t)
-;; (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+(autoload 'go-mode "go-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
 
 (use-package rust-mode
 	:ensure t)
@@ -232,20 +268,40 @@
 (use-package lua-mode
 	:ensure t)
 
-;; (autoload 'lua-mode "lua-mode" "Lua editing mode." t)
-;; (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
-;; (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+(autoload 'lua-mode "lua-mode" "Lua editing mode." t)
+(add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
+(add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
+
+(use-package tuareg
+  :ensure t)
+
+(use-package eglot
+  :ensure t)
+
+(use-package highlight-indentation
+  :ensure t)
 
 ;; (use-package js2-mode
 ;; 	:ensure t)
-;; 
+
 ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 ;; (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
 ;; (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
 
+(use-package js2-mode
+  :ensure t
+  :mode ("\\.js\\'" . js2-mode)
+  :interpreter ("node" . js2-mode))
+
+;; For JSX support, use rjsx-mode instead of js2-jsx-mode (recommended)
+(use-package rjsx-mode
+  :ensure t
+  :mode ("\\.jsx?\\'" . rjsx-mode)
+  :interpreter ("node" . rjsx-mode))
+
 (use-package dockerfile-mode
-	:ensure t)
+ 	:ensure t)
 
 (setq dockerfile-mode-command "docker")
 
@@ -268,7 +324,7 @@
 (defun rc/duplicate-line ()
   "Duplicate current line"
   (interactive)
-  (let ((column (- (point) (point-at-bol)))
+  (let ((column (- (point) (line-beginning-position)))
         (line (let ((s (thing-at-point 'line t)))
                 (if s (string-remove-suffix "\n" s) ""))))
     (move-end-of-line 1)
@@ -278,6 +334,20 @@
     (forward-char column)))
 
 (global-set-key (kbd "C-,") 'rc/duplicate-line)
+
+(defun rc/insert-timestamp ()
+  (interactive)
+  (insert (format-time-string "(%Y-%m-%d %H:%M:%S)")))
+
+(global-set-key (kbd "C-x p d") 'rc/insert-timestamp)
+
+(defun rc/rgrep-selected (beg end)
+  (interactive (if (use-region-p)
+                   (list (region-beginning) (region-end))
+                 (list (point-min) (point-min))))
+  (rgrep (buffer-substring-no-properties beg end) "*" (pwd)))
+
+(global-set-key (kbd "C-x p s") 'rc/rgrep-selected)
 
 compilation-error-regexp-alist-alist
 
