@@ -14,5 +14,5 @@ rofi|symlink|.config
 #ranger|symlink|.config
 sxhkd|symlink|.config
 wallpaper|symlink|Pictures
-#.emacs.d|symlink|
+.emacs.d|symlink|
 newsboat|symlink|.config
