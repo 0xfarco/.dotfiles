@@ -76,49 +76,6 @@
 ;; if you want to change prefix for lsp-mode keybindings.
 (setq lsp-keymap-prefix "s-l")
 
-(use-package eldoc
-  :ensure t)
-(setq lsp-eldoc-render-all t)
-
-;; eglot 
-(use-package eglot
-  :ensure t
-  :config
-  (add-to-list 'eglot-server-programs '((c-mode c++-mode) "clangd"))
-  (add-hook 'c-mode-hook 'eglot-ensure)
-  (add-hook 'c++-mode-hook 'eglot-ensure))
-
-;; Company (completion frontend)
-(use-package company
-  :ensure t
-  :bind (:map company-mode-map
-              ("M-/" . company-complete-common-or-cycle)) ;; override conflict
-  :init
-  (add-hook 'after-init-hook 'global-company-mode)
-  :config
-  (setq company-show-numbers t
-        company-minimum-prefix-length 1
-        company-idle-delay 0.5))
-
-(use-package company-box
-  :ensure t
-  :hook (company-mode . company-box-mode))
-
-;; Flycheck (on-the-fly linting)
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode)
-  :config
-  (setq flycheck-display-errors-function
-        #'flycheck-display-error-messages-unless-error-list
-        flycheck-indication-mode nil))
-
-(use-package flycheck-pos-tip
-  :ensure t
-  :after flycheck
-  :config
-  (flycheck-pos-tip-mode))
-
 (require 'basm-mode)
 
 (require 'fasm-mode)
@@ -224,16 +181,6 @@
 (add-to-list 'auto-mode-alist '("\\.ps1\\'" . powershell-mode))
 (add-to-list 'auto-mode-alist '("\\.psm1\\'" . powershell-mode))
 
-;;; company
-(use-package company
-	:ensure t)
-(add-hook 'after-init-hook 'global-company-mode)
-
-(add-hook 'tuareg-mode-hook
-          (lambda ()
-            (interactive)
-            (company-mode 0)))
-
 ;;; Move Text
 (use-package move-text
 	:ensure t)
@@ -275,19 +222,8 @@
 (use-package tuareg
   :ensure t)
 
-(use-package eglot
-  :ensure t)
-
 (use-package highlight-indentation
   :ensure t)
-
-;; (use-package js2-mode
-;; 	:ensure t)
-
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-;; (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
-;; (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
 
 (use-package js2-mode
   :ensure t
@@ -304,6 +240,71 @@
  	:ensure t)
 
 (setq dockerfile-mode-command "docker")
+
+;; Completion (Company)
+(use-package company
+  :ensure t
+  ;; :hook (after-init . global-company-mode)
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  ;; Recommended tweaks
+  (setq company-idle-delay 0.2
+        company-minimum-prefix-length 1
+        company-tooltip-align-annotations t
+        company-show-numbers t
+        company-backends '(company-capf))) ; rely on capf (LSP/tide/etc.)
+
+(use-package company-box
+  :ensure t
+  :hook (company-mode . company-box-mode))
+
+;; Documentation (Eldoc)
+(use-package eldoc
+  :ensure t
+  :hook ((emacs-lisp-mode prog-mode) . eldoc-mode))
+
+;; Diagnostics (Flycheck)
+(use-package flycheck
+  :ensure t
+  :hook (prog-mode . flycheck-mode))
+
+;; LSP Client (Eglot)
+(use-package eglot
+  :ensure t
+  :hook ((simpc-mode c++-mode
+                 csharp-mode
+                 haskell-mode
+                 python-mode
+                 rust-mode
+                 js2-mode
+                 rjsx-mode
+                 json-mode
+                 css-mode
+                 html-mode)
+         . eglot-ensure)
+  :config
+  (add-to-list 'eglot-server-programs
+               '((simpc-mode c++-mode) "clangd"))
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("python-lsp-server"))))
+
+;; TypeScript / JavaScript (Tide)
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . setup-tide-mode)
+         (tsx-mode . setup-tide-mode)
+         (js-mode . setup-tide-mode))
+  :config
+  (defun setup-tide-mode ()
+    (interactive)
+    (tide-setup)
+    (eldoc-mode 1)
+    (flycheck-mode 1)
+    (company-mode 1)
+    (tide-hl-identifier-mode 1)))
+
 
 (defun astyle-buffer (&optional justify)
   (interactive)
@@ -334,6 +335,30 @@
     (forward-char column)))
 
 (global-set-key (kbd "C-,") 'rc/duplicate-line)
+
+(defun rc/buffer-file-name ()
+  (if (equal major-mode 'dired-mode)
+      default-directory
+    (buffer-file-name)))
+
+(defun rc/parent-directory (path)
+  (file-name-directory (directory-file-name path)))
+
+;;; Taken from here:
+;;; http://stackoverflow.com/questions/2416655/file-path-to-clipboard-in-emacs
+(defun rc/put-file-name-on-clipboard ()
+  "Put the current file name on the clipboard"
+  (interactive)
+  (let ((filename (rc/buffer-file-name)))
+    (when filename
+      (kill-new filename)
+      (message filename))))
+
+(defun rc/put-buffer-name-on-clipboard ()
+  "Put the current buffer name on the clipboard"
+  (interactive)
+  (kill-new (buffer-name))
+  (message (buffer-name)))
 
 (defun rc/insert-timestamp ()
   (interactive)
