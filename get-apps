@@ -56,7 +56,7 @@ POWER_VOID=(
 
 # --- OTHER TOOLS ---
 OTHER_ARTIX=(
-    base-devel curl wget git polkit sxhkd rofi feh dunst picom github-cli
+    base-devel curl wget git polkit sxhkd feh dunst picom github-cli
     libnotify calcurse cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc qbittorrent cronie cronie-runit libqalculate
     qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop
@@ -65,7 +65,7 @@ OTHER_ARTIX=(
 
 OTHER_VOID=(
     base-devel dbus linux-headers mesa mesa-intel-dri libva-intel-driver
-    curl wget git polkit sxhkd rofi feh dunst picom github-cli
+    curl wget git polkit sxhkd feh dunst picom github-cli
     libnotify calcurse make cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc qbittorrent cronie libqalculate qalculate-qt
     man-pages man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop
