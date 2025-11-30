@@ -1,13 +1,24 @@
-#! /bin/sh
+#!/bin/sh
 
-chosen=$(printf "  Power Off\n  Restart\n  Suspend\n  Hibernate\n󰠻  Display Off\n  Lock" | rofi -dmenu -i -theme-str '@import "power.rasi"')
+# A dmenu wrapper script for system functions.
+export WM="dwm"
+case "$(readlink -f /sbin/init)" in
+	*systemd*) ctl='systemctl' ;;
+	*) ctl='loginctl' ;;
+esac
 
-case "$chosen" in
-	"  Power Off") loginctl poweroff ;;
-	"  Restart") loginctl reboot ;;
-	"  Suspend") loginctl suspend-then-hibernate ;;
-	"  Hibernate") loginctl hibernate ;;
-  "󰠻  Display Off") xset dpms force off ;;
-	"  Lock") slock ;;
+wmpid(){ # This function is needed if there are multiple instances of the window manager.
+	tree="$(pstree -ps $$)"
+	tree="${tree#*$WM(}"
+	echo "${tree%%)*}"
+}
+
+case "$(printf " lock\n󰤄  hibernate\n󰒲  sleep\n  reboot\n⏻  shutdown\n󰠻  display off" | dmenu -i -p 'Action: ')" in
+	' lock') slock ;;
+	'󰤄  hibernate') slock $ctl hibernate ;;
+	'󰒲  sleep') slock $ctl suspend ;;
+	'  reboot') $ctl reboot ;;
+	'⏻  shutdown') $ctl poweroff ;;
+	'󰠻  display off') xset dpms force off ;;
 	*) exit 1 ;;
 esac
