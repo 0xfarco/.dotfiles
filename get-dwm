@@ -95,6 +95,36 @@ append_shell_configs() {
     safe_append "$HOME/.bashrc"       "$CUSTOM_BASHRC"
 }
 
+add_dwm_block_to_xinitrc() {
+    local file="$HOME/.xinitrc"
+
+    # Create .xinitrc if missing
+    [[ ! -f "$file" ]] && touch "$file"
+
+    # Avoid duplicate block
+    if grep -q "exec dwm" "$file"; then
+        echo "ℹ️ dwm block already in .xinitrc"
+        return
+    fi
+
+    echo "📝 Adding dwm session block to .xinitrc"
+
+    # OS-specific wallpaper
+    if [[ "$OS" == "artix" ]]; then
+        WALLPAPER_CMD='feh --bg-scale ~/Pictures/wallpaper/artix.png &'
+    else
+        WALLPAPER_CMD='feh --bg-scale ~/Pictures/wallpaper/void-linux.png &'
+    fi
+
+    cat >> "$file" << EOF
+slstatus &
+picom &
+$WALLPAPER_CMD
+sxhkd -c ~/.config/sxhkd/sxhkdrc &
+exec dwm
+EOF
+}
+
 # ----------- SUCKLESS BUILD -----------
 
 clone_and_build_suckless() {
@@ -130,6 +160,7 @@ clone_and_build_suckless() {
 install_mandatory_packages
 copy_configs
 append_shell_configs
+add_dwm_block_to_xinitrc
 clone_and_build_suckless
 
 echo "✅ DWM Setup complete!"

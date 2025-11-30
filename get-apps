@@ -29,6 +29,13 @@ echo "🖥️ Detected OS: $OS"
 # ===============================
 
 # --- AUDIO ---
+
+if [[ "$OS" == "artix" ]]; then
+    USE_PIPEWIRE=true
+else
+    USE_PIPEWIRE=false
+fi
+
 #AUDIO_ARTIX=(pulseaudio pulsemixer pavucontrol)
 AUDIO_ARTIX=(pipewire pipewire-pulse wireplumber pipewire-alsa pavucontrol pulsemixer)
 #AUDIO_VOID=(pipewire wireplumber pipewire-alsa pipewire-pulse pavucontrol pulsemixer)
@@ -126,12 +133,36 @@ install_aur() {
 }
 
 # ===============================
-#   EXTRA DIRECTORIES
+#   CONFIG
 # ===============================
 
-create_recordings_dir() {
-    echo "📁 Creating ~/Public/Recordings..."
-    mkdir -p "$HOME/Public/Recordings"
+add_pipewire_to_xinitrc() {
+    local file="$HOME/.xinitrc"
+
+    # Skip if user disabled PipeWire
+    if [[ "$USE_PIPEWIRE" != true ]]; then
+        echo "ℹ️ PipeWire disabled — skipping .xinitrc"
+        return
+    fi
+
+    # Avoid duplicates
+    if grep -q "/usr/bin/pipewire" "$file"; then
+        echo "ℹ️ PipeWire already present in .xinitrc"
+        return
+    fi
+
+    echo "📝 Adding PipeWire block to top of .xinitrc"
+
+    # Prepend block
+    {
+        echo "/usr/bin/pipewire &"
+        echo "/usr/bin/pipewire-pulse &"
+        echo "/usr/bin/wireplumber &"
+        #echo
+        cat "$file"
+    } > "${file}.tmp"
+
+    mv "${file}.tmp" "$file"
 }
 
 # ===============================
@@ -141,6 +172,7 @@ create_recordings_dir() {
 install_all
 install_aur
 create_recordings_dir
+add_pipewire_to_xinitrc
 
 echo "✅ Setup complete!"
 
