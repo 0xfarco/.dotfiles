@@ -19,6 +19,9 @@ super + shift + p
 super + shift + g
   notify-send "Appointments" "$(calcurse -d 3)"
 
+super + F1
+  zoomer
+
 Print
   flameshot gui
 
