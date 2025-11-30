@@ -116,6 +116,31 @@ exec i3
 EOF
 }
 
+install_nerd_font() {
+    local url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    local zip_file="$tmp_dir/JetBrainsMono.zip"
+    local extract_dir="$tmp_dir/JetBrainsMono"
+
+    echo "⬇️ Downloading JetBrainsMono Nerd Font..."
+    wget -q --show-progress -O "$zip_file" "$url"
+
+    echo "📦 Extracting JetBrainsMono.zip..."
+    unzip -q "$zip_file" -d "$extract_dir"
+
+    echo "📂 Moving JetBrainsMono fonts to /usr/share/fonts/JetBrainsMono..."
+    sudo mkdir -p /usr/share/fonts/JetBrainsMono
+    sudo cp -r "$extract_dir"/* /usr/share/fonts/JetBrainsMono/
+
+    echo "🔄 Updating font cache..."
+    sudo fc-cache -fv
+
+    echo "✅ JetBrainsMono Nerd Font installed."
+    rm -rf "$tmp_dir"
+}
+
+
 # ----------- EXECUTION -----------
 
 install_mandatory_packages
@@ -124,6 +149,11 @@ safe_append "$HOME/.bash_profile" "$CUSTOM_BASH_PROFILE"
 safe_append "$HOME/.bashrc" "$CUSTOM_BASHRC"
 setup_i3
 add_i3_block_to_xinitrc
+
+# Conditionally install JetBrains Mono Nerd Font
+if [[ "$OS" == "void" ]]; then
+    install_nerd_font
+fi
 
 echo "✅ i3 Setup complete!"
 
