@@ -2,6 +2,8 @@
 
 getdim() { xrandr | grep -oP '(?<=current ).*(?=,)' | tr -d ' ' ;}
 
+[ ! -d "$HOME/Public/Recordings" ] && mkdir -p "$HOME/Public/Recordings"
+
 updateicon() { \
 	echo "$1" > /tmp/recordingicon
 }
