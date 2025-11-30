@@ -79,9 +79,22 @@ safe_append() {
     fi
 }
 
-setup_i3() {
+copy_i3_configs() {
+    # Ensure the .config/i3 directory exists
+    mkdir -p "$HOME/.config/i3"
+
+    # Copy all i3 config files from current directory's i3/ to ~/.config/i3/
+    if [[ -d ./i3 ]]; then
+        cp -r ./i3/* "$HOME/.config/i3/"
+        echo "📂 i3 configuration copied to ~/.config/i3/"
+    else
+        echo "⚠️ i3 config directory './i3' not found."
+    fi
+
+    # Copy .i3status.conf to $HOME
     if [[ -f .i3status.conf ]]; then
-        cp ".i3status.conf" "$HOME"
+        cp .i3status.conf "$HOME/"
+        echo "📄 .i3status.conf copied to $HOME/"
     else
         echo "⚠️ .i3status.conf not found."
     fi
@@ -147,7 +160,7 @@ install_mandatory_packages
 copy_touchpad
 safe_append "$HOME/.bash_profile" "$CUSTOM_BASH_PROFILE"
 safe_append "$HOME/.bashrc" "$CUSTOM_BASHRC"
-setup_i3
+copy_i3_configs
 add_i3_block_to_xinitrc
 
 # Conditionally install JetBrains Mono Nerd Font
@@ -156,4 +169,3 @@ if [[ "$OS" == "void" ]]; then
 fi
 
 echo "✅ i3 Setup complete!"
-
