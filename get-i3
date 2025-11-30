@@ -1,0 +1,99 @@
+#!/bin/bash
+set -e
+
+detect_os() {
+    if [[ -f /etc/artix-release ]]; then
+        echo "artix"
+    elif [[ -f /etc/void-release ]]; then
+        echo "void"
+    else
+        echo "unknown"
+    fi
+}
+
+OS=$(detect_os)
+[[ "$OS" == "unknown" ]] && { echo "❌ Unsupported OS."; exit 1; }
+
+echo "🖥️ Detected OS: $OS"
+
+# ----------- CONFIGURATION -----------
+
+XORG_TOOLS_ARTIX=(libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr)
+I3_TOOLS_ARTIX=(i3-wm i3status)
+FONT_TOOLS_ARTIX=(ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu)
+
+XORG_TOOLS_VOID=(libX11-devel libXft-devel libXinerama-devel xorg-minimal xinit xrandr)
+I3_TOOLS_VOID=(i3 i3status)
+FONT_TOOLS_VOID=(font-awesome5 dejavu-fonts-ttf noto-fonts-emoji)
+
+TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+CUSTOM_BASH_PROFILE="./append_profile"
+CUSTOM_BASHRC="./append_bashrc"
+
+# ----------- INSTALLATION -----------
+
+install_packages() {
+    local name="$1"
+    shift
+    local tools=("$@")
+
+    echo "📦 Installing $name..."
+
+    if [[ "$OS" == "artix" ]]; then
+        sudo pacman -S --needed "${tools[@]}"
+    else
+        sudo xbps-install -Sy "${tools[@]}"
+    fi
+}
+
+install_mandatory_packages() {
+    if [[ "$OS" == "artix" ]]; then
+        install_packages "Xorg Tools" "${XORG_TOOLS_ARTIX[@]}"
+        install_packages "I3 Tools" "${I3_TOOLS_ARTIX[@]}"
+        install_packages "Fonts" "${FONT_TOOLS_ARTIX[@]}"
+    else
+        install_packages "Xorg Tools" "${XORG_TOOLS_VOID[@]}"
+        install_packages "I3 Tools" "${I3_TOOLS_VOID[@]}"
+        install_packages "Fonts" "${FONT_TOOLS_VOID[@]}"
+    fi
+}
+
+copy_touchpad() {
+    echo "🖱️ Installing touchpad configuration..."
+    sudo install -Dm644 "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+}
+
+safe_append() {
+    local file="$1"
+    local marker="# BEGIN custom additions"
+
+    if ! grep -qF "$marker" "$file" 2>/dev/null; then
+        echo "🔧 Updating $file..."
+        {
+            echo "$marker"
+            cat "$2"
+            echo "# END custom additions"
+        } >> "$file"
+    else
+        echo "ℹ️ Already modified: $file"
+    fi
+}
+
+setup_i3() {
+    if [[ -f .i3status.conf ]]; then
+        cp ".i3status.conf" "$HOME"
+    else
+        echo "⚠️ .i3status.conf not found."
+    fi
+}
+
+# ----------- EXECUTION -----------
+
+install_mandatory_packages
+copy_touchpad
+safe_append "$HOME/.bash_profile" "$CUSTOM_BASH_PROFILE"
+safe_append "$HOME/.bashrc" "$CUSTOM_BASHRC"
+setup_i3
+
+echo "✅ i3 Setup complete!"
+

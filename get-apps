@@ -1,0 +1,146 @@
+#!/bin/bash
+set -e
+
+# ===============================
+#   OS DETECTION
+# ===============================
+detect_os() {
+    if [[ -f /etc/artix-release ]]; then
+        echo "artix"
+    elif [[ -f /etc/void-release ]]; then
+        echo "void"
+    else
+        echo "unknown"
+    fi
+}
+
+OS=$(detect_os)
+
+if [[ "$OS" == "unknown" ]]; then
+    echo "❌ Unsupported OS. This script only supports Artix & Void Linux."
+    exit 1
+fi
+
+echo "🖥️ Detected OS: $OS"
+
+
+# ===============================
+#   PACKAGE LISTS
+# ===============================
+
+# --- AUDIO ---
+#AUDIO_ARTIX=(pulseaudio pulsemixer pavucontrol)
+AUDIO_ARTIX=(pipewire pipewire-pulse wireplumber pipewire-alsa pavucontrol pulsemixer)
+#AUDIO_VOID=(pipewire wireplumber pipewire-alsa pipewire-pulse pavucontrol pulsemixer)
+AUDIO_VOID=(pulseaudio pavucontrol pulsemixer)
+
+# --- POWER MANAGEMENT ---
+POWER_ARTIX=(
+    tlp tlp-runit tlp-rdw
+    thermald thermald-runit
+    lm_sensors lm_sensors-runit
+)
+
+POWER_VOID=(
+    tlp tlp-rdw
+    thermald
+    lm_sensors
+)
+
+# --- OTHER TOOLS ---
+OTHER_ARTIX=(
+    base-devel curl wget git polkit sxhkd rofi feh dunst picom github-cli
+    libnotify calcurse cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
+    neovim vim nano mpv vlc qbittorrent cronie cronie-runit libqalculate
+    qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop
+    slock slop newsboat tesseract tesseract-data-eng yazi unzip tmux
+)
+
+OTHER_VOID=(
+    base-devel dbus linux-headers mesa mesa-intel-dri libva-intel-driver
+    curl wget git polkit sxhkd rofi feh dunst picom github-cli
+    libnotify calcurse make cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
+    neovim vim nano mpv vlc qbittorrent cronie libqalculate qalculate-qt
+    man-pages man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop
+    slock slop newsboat tesseract tesseract-ocr-eng yazi unzip tmux
+    NetworkManager
+)
+
+
+# ===============================
+#   PACKAGE INSTALLER
+# ===============================
+
+install_packages() {
+    local label="$1"
+    shift
+    local pkgs=("$@")
+
+    echo "📦 Installing: $label"
+
+    if [[ "$OS" == "artix" ]]; then
+        sudo pacman -S --needed "${pkgs[@]}"
+    else
+        sudo xbps-install -Sy "${pkgs[@]}"
+    fi
+}
+
+
+install_all() {
+    if [[ "$OS" == "artix" ]]; then
+        install_packages "Pipewire" "${AUDIO_ARTIX[@]}"
+        install_packages "Power Tools" "${POWER_ARTIX[@]}"
+        install_packages "Other Tools" "${OTHER_ARTIX[@]}"
+    else
+        install_packages "Pipewire" "${AUDIO_VOID[@]}"
+        install_packages "Power Tools" "${POWER_VOID[@]}"
+        install_packages "Other Tools" "${OTHER_VOID[@]}"
+    fi
+}
+
+# ===============================
+#   AUR HELPER (ARTIX ONLY)
+# ===============================
+
+AUR_HELPER_DIR="$HOME/.local/src/paru-bin"
+
+install_aur() {
+    if [[ "$OS" == "void" ]]; then
+        echo "ℹ️ Void Linux detected — skipping AUR helper."
+        return
+    fi
+
+    if command_exists paru; then
+        echo "✅ paru is already installed."
+        return
+    fi
+
+    echo "🔧 Installing paru (AUR helper)..."
+    sudo pacman -S --needed git base-devel
+
+    rm -rf "$AUR_HELPER_DIR"
+    git clone https://aur.archlinux.org/paru-bin.git "$AUR_HELPER_DIR"
+    cd "$AUR_HELPER_DIR"
+    makepkg -si
+    cd -
+}
+
+# ===============================
+#   EXTRA DIRECTORIES
+# ===============================
+
+create_recordings_dir() {
+    echo "📁 Creating ~/Public/Recordings..."
+    mkdir -p "$HOME/Public/Recordings"
+}
+
+# ===============================
+#   EXECUTION
+# ===============================
+
+install_all
+install_aur
+create_recordings_dir
+
+echo "✅ Setup complete!"
+

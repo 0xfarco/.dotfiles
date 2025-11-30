@@ -1,0 +1,136 @@
+#!/bin/bash
+set -e
+
+# ----------- OS DETECTION -----------
+
+detect_os() {
+    if [[ -f /etc/artix-release ]]; then
+        echo "artix"
+    elif [[ -f /etc/void-release ]]; then
+        echo "void"
+    else
+        echo "unknown"
+    fi
+}
+
+OS=$(detect_os)
+
+if [[ "$OS" == "unknown" ]]; then
+    echo "❌ Unsupported OS. This script only supports Artix Linux and Void Linux."
+    exit 1
+fi
+
+echo "🖥️ Detected OS: $OS"
+
+# ----------- CONFIGURATION -----------
+
+XORG_TOOLS_ARTIX=(libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr)
+XORG_TOOLS_VOID=(libX11 libXft libXinerama xorg-minimal xinit xrandr)
+
+FONT_TOOLS_ARTIX=(ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu)
+FONT_TOOLS_VOID=(font-awesome5 dejavu-fonts-ttf noto-fonts-emoji)
+
+SRC_DIR="$HOME/.local/src"
+DWM_DESKTOP_FILE="./dwm.desktop"
+TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+CUSTOM_BASH_PROFILE="./append_profile"
+CUSTOM_BASHRC="./append_bashrc"
+
+# ----------- PACKAGE INSTALLATION -----------
+
+install_packages() {
+    local name="$1"
+    shift
+    local tools=("$@")
+
+    echo "📦 Installing $name..."
+
+    if [[ "$OS" == "artix" ]]; then
+        sudo pacman -S --needed "${tools[@]}"
+    else
+        sudo xbps-install -Sy "${tools[@]}"
+    fi
+}
+
+install_mandatory_packages() {
+    if [[ "$OS" == "artix" ]]; then
+        install_packages "Xorg Tools" "${XORG_TOOLS_ARTIX[@]}"
+        install_packages "Fonts" "${FONT_TOOLS_ARTIX[@]}"
+    else
+        install_packages "Xorg Tools" "${XORG_TOOLS_VOID[@]}"
+        install_packages "Fonts" "${FONT_TOOLS_VOID[@]}"
+    fi
+}
+
+# ----------- CONFIGURATION COPY -----------
+
+copy_configs() {
+    echo "🖼️ Installing dwm.desktop..."
+    sudo install -Dm644 "$DWM_DESKTOP_FILE" /usr/share/xsessions/dwm.desktop
+
+    echo "🖱️ Installing 30-touchpad.conf..."
+    sudo install -Dm644 "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+}
+
+# ----------- SHELL MODIFICATIONS -----------
+
+safe_append() {
+    local file="$1"
+    local marker="# BEGIN custom additions"
+
+    if ! grep -qF "$marker" "$file" 2>/dev/null; then
+        echo "🔧 Adding modifications to $file"
+        {
+            echo "$marker"
+            cat "$2"
+            echo "# END custom additions"
+        } >> "$file"
+    else
+        echo "ℹ️ Already modified: $file"
+    fi
+}
+
+append_shell_configs() {
+    safe_append "$HOME/.bash_profile" "$CUSTOM_BASH_PROFILE"
+    safe_append "$HOME/.bashrc"       "$CUSTOM_BASHRC"
+}
+
+# ----------- SUCKLESS BUILD -----------
+
+clone_and_build_suckless() {
+    echo "🔨 Building Suckless tools..."
+
+    declare -A REPOS=(
+        [dwm]="https://github.com/0xfarco/dwm"
+        [slstatus]="https://github.com/0xfarco/slstatus"
+        [dmenu]="https://github.com/0xfarco/dmenu"
+        [st]="https://github.com/0xfarco/st"
+    )
+
+    mkdir -p "$SRC_DIR"
+
+    for name in "${!REPOS[@]}"; do
+        repo="${REPOS[$name]}"
+        dest="$SRC_DIR/$name"
+
+        echo "📥 Cloning $name..."
+        rm -rf "$dest"
+        git clone "$repo" "$dest"
+
+        echo "⚙️ Building $name..."
+        cd "$dest"
+        make
+        sudo make clean install
+        cd -
+    done
+}
+
+# ----------- EXECUTION -----------
+
+install_mandatory_packages
+copy_configs
+append_shell_configs
+clone_and_build_suckless
+
+echo "✅ DWM Setup complete!"
+
