@@ -10,35 +10,11 @@ XF86Audio{Raise,Lower}Volume
 XF86AudioMute  
   pulsemixer  --toggle-mute
 
-super + s
-  rofi -show run
-
-super + shift + s
-  rofi -show drun
-
-super + w
-  librewolf
-
 super + shift + w
-  librewolf --private-window
-
-super + v
-  brave
-
-super + shift + v
-  brave --incognito
-
-super + shift + d
   camtoggle
-
-super + shift + e
-  st -e yazi
 
 super + shift + p
   powermenu
-
-super + g
-  st -e calcurse
 
 super + shift + g
   notify-send "Appointments" "$(calcurse -d 3)"
