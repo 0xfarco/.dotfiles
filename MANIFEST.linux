@@ -3,6 +3,7 @@
 .vimrc|symlink|
 bin|symlink|.local
 .gdbinit|symlink|
+gf2_config.ini|symlink|.config
 .gitconfig|symlink|
 #alacritty|symlink|.config
 dunst|symlink|.config
