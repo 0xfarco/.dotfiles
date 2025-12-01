@@ -177,7 +177,6 @@ add_pipewire_to_xinitrc() {
 
 install_all
 install_aur
-create_recordings_dir
 add_pipewire_to_xinitrc
 
 echo "✅ Setup complete!"
