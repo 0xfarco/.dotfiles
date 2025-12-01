@@ -65,7 +65,7 @@ OTHER_ARTIX=(
 )
 
 OTHER_VOID=(
-    base-devel dbus linux-headers mesa mesa-intel-dri intel-video-accel
+    base-devel dbus linux-headers mesa mesa-intel-dri intel-video-accel xf86-video-intel
     curl wget git polkit sxhkd feh dunst picom github-cli
     libnotify calcurse make cmake nsxiv flameshot ffmpeg ffmpegthumbnailer
     neovim vim nano mpv vlc qbittorrent cronie libqalculate qalculate-qt
