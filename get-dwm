@@ -30,8 +30,8 @@ echo "🖥️ Detected OS: $OS"
 
 # ----------- CONFIGURATION -----------
 
-XORG_TOOLS_ARTIX=(libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr)
-XORG_TOOLS_VOID=(libX11 libXft libXinerama xorg-minimal xinit xrandr)
+XORG_TOOLS_ARTIX=(libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr base-devel)
+XORG_TOOLS_VOID=(libX11 libXft libXinerama xorg-minimal xinit xrandr base-devel)
 
 FONT_TOOLS_ARTIX=(ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu)
 FONT_TOOLS_VOID=(font-awesome5 dejavu-fonts-ttf noto-fonts-emoji)
