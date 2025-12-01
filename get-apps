@@ -4,11 +4,17 @@ set -e
 # ===============================
 #   OS DETECTION
 # ===============================
+
 detect_os() {
     if [[ -f /etc/artix-release ]]; then
         echo "artix"
-    elif [[ -f /etc/void-release ]]; then
-        echo "void"
+    elif [[ -f /etc/os-release ]]; then
+        source /etc/os-release
+        if [[ "$ID" == "void" ]]; then
+            echo "void"
+        else
+            echo "unknown"
+        fi
     else
         echo "unknown"
     fi
