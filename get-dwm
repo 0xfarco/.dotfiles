@@ -131,6 +131,30 @@ exec dwm
 EOF
 }
 
+install_nerd_font() {
+    local url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    local zip_file="$tmp_dir/JetBrainsMono.zip"
+    local extract_dir="$tmp_dir/JetBrainsMono"
+
+    echo "⬇️ Downloading JetBrainsMono Nerd Font..."
+    wget -q --show-progress -O "$zip_file" "$url"
+
+    echo "📦 Extracting JetBrainsMono.zip..."
+    unzip -q "$zip_file" -d "$extract_dir"
+
+    echo "📂 Moving JetBrainsMono fonts to /usr/share/fonts/JetBrainsMono..."
+    sudo mkdir -p /usr/share/fonts/JetBrainsMono
+    sudo cp -r "$extract_dir"/* /usr/share/fonts/JetBrainsMono/
+
+    echo "🔄 Updating font cache..."
+    sudo fc-cache -fv
+
+    echo "✅ JetBrainsMono Nerd Font installed."
+    rm -rf "$tmp_dir"
+}
+
 # ----------- SUCKLESS BUILD -----------
 
 clone_and_build_suckless() {
@@ -168,6 +192,11 @@ copy_configs
 append_shell_configs
 add_dwm_block_to_xinitrc
 clone_and_build_suckless
+
+# Conditionally install JetBrains Mono Nerd Font
+if [[ "$OS" == "void" ]]; then
+    install_nerd_font
+fi
 
 echo "✅ DWM Setup complete!"
 
