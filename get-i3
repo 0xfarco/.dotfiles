@@ -2,22 +2,21 @@
 set -e
 
 detect_os() {
-    if [[ -f /etc/artix-release ]]; then
+    if command -v pacman >/dev/null 2>&1; then
         echo "artix"
-    elif [[ -f /etc/os-release ]]; then
-        source /etc/os-release
-        if [[ "$ID" == "void" ]]; then
-            echo "void"
-        else
-            echo "unknown"
-        fi
+    elif command -v xbps-install >/dev/null 2>&1; then
+        echo "void"
     else
         echo "unknown"
     fi
 }
 
 OS=$(detect_os)
-[[ "$OS" == "unknown" ]] && { echo "❌ Unsupported OS."; exit 1; }
+
+if [[ "$OS" == "unknown" ]]; then
+    echo "❌ Unsupported OS. This script only supports Artix Linux and Void Linux."
+    exit 1
+fi
 
 echo "🖥️ Detected OS: $OS"
 

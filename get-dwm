@@ -4,20 +4,14 @@ set -e
 # ----------- OS DETECTION -----------
 
 detect_os() {
-    if [[ -f /etc/artix-release ]]; then
+    if command -v pacman >/dev/null 2>&1; then
         echo "artix"
-    elif [[ -f /etc/os-release ]]; then
-        source /etc/os-release
-        if [[ "$ID" == "void" ]]; then
-            echo "void"
-        else
-            echo "unknown"
-        fi
+    elif command -v xbps-install >/dev/null 2>&1; then
+        echo "void"
     else
         echo "unknown"
     fi
 }
-
 
 OS=$(detect_os)
 
