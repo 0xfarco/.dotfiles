@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# QEMU + libvirt setup on Artix or Void Linux (runit)
+# Run this script as root or with sudo
+
+set -e  # Exit on error
+
+POST_REBOOT_FILE="$HOME/qemu-post-reboot.txt"
+
+# --------------------------
+# INSTALLATION FUNCTIONS
+# --------------------------
+
+install_artix() {
+    echo "==> Detected Artix Linux (pacman found)"
+    echo "==> Installing packages..."
+    sudo pacman -S --needed --noconfirm \
+        qemu-desktop virt-manager virt-viewer dnsmasq vde2 \
+        bridge-utils openbsd-netcat libvirt libvirt-runit libguestfs
+}
+
+install_void() {
+    echo "==> Detected Void Linux (xbps-install found)"
+    echo "==> Installing packages..."
+    sudo xbps-install -Sy \
+        qemu virt-manager virt-viewer dnsmasq vde2 \
+        bridge-utils openbsd-netcat libvirt libguestfs
+}
+
+# --------------------------
+# SERVICE ENABLING FUNCTIONS
+# --------------------------
+
+enable_services_artix() {
+    echo "==> Enabling runit services for Artix..."
+    sudo ln -sf /etc/runit/sv/libvirtd /run/runit/service
+    sudo ln -sf /etc/runit/sv/virtlogd /run/runit/service
+}
+
+enable_services_void() {
+    echo "==> Enabling runit services for Void Linux..."
+    sudo ln -sf /etc/sv/libvirtd /var/service/
+    sudo ln -sf /etc/sv/virtlockd /var/service/
+    sudo ln -sf /etc/sv/virtlogd /var/service/
+}
+
+# --------------------------
+# OS DETECTION
+# --------------------------
+
+if command -v pacman >/dev/null 2>&1; then
+    OS="artix"
+    install_artix
+    enable_services_artix
+elif command -v xbps-install >/dev/null 2>&1; then
+    OS="void"
+    install_void
+    enable_services_void
+else
+    echo "Unsupported system. Only pacman (Artix) or xbps-install (Void) are supported."
+    exit 1
+fi
+
+# --------------------------
+# LIBVIRT CONFIG
+# --------------------------
+
+echo "==> Configuring /etc/libvirt/libvirtd.conf..."
+sudo sed -i \
+  -e 's/^#unix_sock_group = "libvirt"/unix_sock_group = "libvirt"/' \
+  -e 's/^#unix_sock_ro_perms = "0777"/unix_sock_ro_perms = "0777"/' \
+  -e 's/^#unix_sock_rw_perms = "0770"/unix_sock_rw_perms = "0770"/' \
+  /etc/libvirt/libvirtd.conf
+
+echo "==> Adding user $(whoami) to libvirt group..."
+sudo usermod -aG libvirt "$(whoami)"
+
+# --------------------------
+# REBOOT STEPS
+# --------------------------
+
+echo
+echo "!! IMPORTANT: You must reboot for group membership changes to apply !!"
+echo "Reboot now? (y/n): "
+read REBOOT_CHOICE
+
+echo "==> Writing post-reboot instructions to $POST_REBOOT_FILE"
+cat << EOF > "$POST_REBOOT_FILE"
+After reboot, activate libvirt networking:
+
+    sudo virsh net-start default
+    sudo virsh net-autostart default
+    sudo virsh net-list --all
+EOF
+
+if [[ "$REBOOT_CHOICE" =~ ^[Yy]$ ]]; then
+    echo "==> Rebooting..."
+    reboot
+else
+    echo "==> Skipping reboot. Instructions saved to $POST_REBOOT_FILE"
+    cat "$POST_REBOOT_FILE"
+fi
+
