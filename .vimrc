@@ -1,7 +1,7 @@
 syntax on
 set tabstop=4
 set shiftwidth=4
-set expandtab
+set noexpandtab
 set ai
 set number
 set hlsearch
