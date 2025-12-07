@@ -8,7 +8,7 @@ ip=$(nmcli -g IP4.ADDRESS device show "$device" 2>/dev/null \
       | head -n1 | cut -d/ -f1)
 
 if [ -n "$device" ] && [ -n "$ip" ]; then
-    echo "$device $ip"
+    echo "$ip"
 else
     echo "No active device"
 fi
