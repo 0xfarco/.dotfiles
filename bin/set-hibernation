@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Ensure the script is run as root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root. Please run with sudo."
+   exit 1
+fi
+
+# Check if we have a swap partition set up
+SWAP_PARTITION=$(swapon --show=NAME --noheadings)
+
+if [[ -z "$SWAP_PARTITION" ]]; then
+    echo "No swap partition found. Please set up a swap partition first."
+    exit 1
+fi
+
+# Remove /dev/ prefix from the SWAP_PARTITION and store it in a new variable
+SWAP_PARTITION_NAME=$(echo "$SWAP_PARTITION" | sed 's|/dev/||')
+
+# Check if the swap partition is in use
+SWAP_STATUS=$(swapon --show=NAME,TYPE | grep "$SWAP_PARTITION" | awk '{print $2}')
+
+if [[ "$SWAP_STATUS" != "partition" ]]; then
+    echo "The swap space is not a partition. Hibernation requires a swap partition."
+    exit 1
+fi
+
+# Identify the major and minor device numbers for the swap partition
+SWAP_DEVICE=$(lsblk -no NAME,MAJ:MIN | grep "$SWAP_PARTITION_NAME" | awk '{print $2}')
+
+if [[ -z "$SWAP_DEVICE" ]]; then
+    echo "Unable to find the swap device major:minor number."
+    exit 1
+fi
+
+# Enable hibernation by setting the resume option in the kernel parameters
+SWAP_UUID=$(blkid -o value -s UUID "$SWAP_PARTITION")
+GRUB_CFG="/etc/default/grub"
+
+# Backup the current GRUB config
+cp "$GRUB_CFG" "${GRUB_CFG}.bak"
+
+# Modify mkinitcpio.conf to add the resume hook
+MKINITCPIO_CONF="/etc/mkinitcpio.conf"
+
+# Backup the mkinitcpio.conf file before making changes
+cp "$MKINITCPIO_CONF" "${MKINITCPIO_CONF}.bak"
+
+# Add resume hook after filesystems and before fsck
+echo "Modifying mkinitcpio.conf to include the resume hook..."
+sed -i 's/HOOKS=(\(.*\)filesystems\(.*\)fsck)/HOOKS=(\1filesystems resume\2fsck)/' "$MKINITCPIO_CONF"
+
+# Regenerate the initramfs to apply the changes for the linux-lts kernel
+echo "Regenerating initramfs for linux-lts..."
+mkinitcpio -p linux-lts
+
+# Add resume parameter for hibernation (uses swap partition UUID)
+echo "Adding resume option to GRUB configuration."
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 resume=UUID='$SWAP_UUID'"/' "$GRUB_CFG"
+
+# Update GRUB configuration
+echo "Updating GRUB configuration..."
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Set the resume device immediately for hibernation
+echo "Enabling swap for hibernation immediately..."
+echo $SWAP_DEVICE > /sys/power/resume
+
+# Check if the resume path exists
+if [[ -f /sys/power/resume ]]; then
+    echo "Hibernation setup successfully."
+else
+    echo "Failed to enable hibernation."
+    exit 1
+fi
+
+# Inform user to reboot for permanent changes to take effect
+echo "Hibernation has been enabled immediately. Please reboot your system for permanent changes to take effect."
+
