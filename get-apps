@@ -110,7 +110,7 @@ install_all() {
 #   AUR HELPER (ARTIX ONLY)
 # ===============================
 
-AUR_HELPER_DIR="$HOME/.local/src/paru-bin"
+AUR_HELPER_DIR="$HOME/.local/src/paru"
 
 install_aur() {
     if [[ "$OS" == "void" ]]; then
@@ -127,7 +127,7 @@ install_aur() {
     sudo pacman -S --needed git base-devel
 
     rm -rf "$AUR_HELPER_DIR"
-    git clone https://aur.archlinux.org/paru-bin.git "$AUR_HELPER_DIR"
+    git clone https://aur.archlinux.org/paru.git "$AUR_HELPER_DIR"
     cd "$AUR_HELPER_DIR"
     makepkg -si
     cd -
