@@ -10,7 +10,7 @@ dunst|symlink|.config
 #lf|symlink|.config
 nvim|symlink|.config
 picom|symlink|.config
-rofi|symlink|.config
+#rofi|symlink|.config
 #ranger|symlink|.config
 sxhkd|symlink|.config
 wallpaper|symlink|Pictures
