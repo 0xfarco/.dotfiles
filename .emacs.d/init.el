@@ -81,12 +81,6 @@
 (require 'fasm-mode)
 (add-to-list 'auto-mode-alist '("\\.asm\\'" . fasm-mode))
 
-(require 'porth-mode)
-
-(require 'noq-mode)
-
-(require 'jai-mode)
-
 (require 'simpc-mode)
 (add-to-list 'auto-mode-alist '("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
 
