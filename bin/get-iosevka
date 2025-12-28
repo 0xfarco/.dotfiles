@@ -1,0 +1,101 @@
+#!/bin/bash
+set -e
+
+DOWNLOAD_DIR="$HOME/iosevka_zips"
+EXTRACT_DIR="$HOME/iosevka_extracted"
+FONT_DIR="/usr/share/fonts"
+
+# Check if a command exists
+is_installed() {
+  command -v "$1" &> /dev/null
+}
+
+# Identify OS
+identify_os() {
+  if command -v pacman &> /dev/null; then
+    os="arch"
+    echo "Arch-based Linux detected"
+  elif command -v xbps-install &> /dev/null; then
+    os="void"
+    echo "Void Linux detected"
+  elif command -v apt &> /dev/null; then
+    os="debian"
+    echo "Debian-based Linux detected"
+  else
+    echo "Unsupported distribution"
+    exit 1
+  fi
+}
+
+# Install required packages
+install_packages() {
+  for pkg in curl jq unzip; do
+    if ! is_installed "$pkg"; then
+      echo "Installing $pkg..."
+      case $os in
+        arch)
+          sudo pacman -Sy --noconfirm "$pkg"
+          ;;
+        void)
+          sudo xbps-install -Sy "$pkg"
+          ;;
+        debian)
+          sudo apt update && sudo apt install -y "$pkg"
+          ;;
+      esac
+    fi
+  done
+}
+
+# Download selected Iosevka variants with progress
+download_iosevka() {
+  mkdir -p "$DOWNLOAD_DIR"
+  cd "$DOWNLOAD_DIR"
+
+  echo "Downloading selected Iosevka variants..."
+
+  curl -s https://api.github.com/repos/be5invis/Iosevka/releases/latest \
+    | jq -r '.assets[].browser_download_url' \
+    | grep -E 'PkgTTC-(Iosevka(-[^/]+)?|IosevkaAile-[^/]+|IosevkaCurly-[^/]+|IosevkaCurlySlab-[^/]+|IosevkaEtoile-[^/]+|IosevkaSlab-[^/]+)\.zip$' \
+    | while read -r url; do
+        echo "Downloading: $(basename "$url")"
+        curl -L -O --fail "$url"
+      done
+
+  echo "Download complete."
+}
+
+# Extract each zip into a directory with the same name
+extract_zips() {
+  mkdir -p "$EXTRACT_DIR"
+
+  for zip in "$DOWNLOAD_DIR"/*.zip; do
+    name="$(basename "$zip" .zip)"
+    dest="$EXTRACT_DIR/$name"
+
+    echo "Extracting: $name"
+    mkdir -p "$dest"
+    unzip -q "$zip" -d "$dest"
+  done
+}
+
+# Move extracted directories into system fonts directory
+install_fonts() {
+  echo "Moving font directories to $FONT_DIR..."
+  sudo mkdir -p "$FONT_DIR"
+
+  sudo mv "$EXTRACT_DIR"/* "$FONT_DIR"/
+  rm -rf "$DOWNLOAD_DIR" "$EXTRACT_DIR"
+
+  # sudo fc-cache -f
+  echo "Fonts installed."
+}
+
+identify_os
+install_packages
+download_iosevka
+extract_zips
+install_fonts
+
+echo "All done!"
+
