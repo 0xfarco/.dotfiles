@@ -1,3 +1,5 @@
+;; https://github.com/rexim/dotfiles/blob/master/.emacs.local/simpc-mode.el
+
 (require 'subr-x)
 
 (defvar simpc-mode-syntax-table

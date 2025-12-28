@@ -1,3 +1,5 @@
+;; https://github.com/rexim/dotfiles/blob/master/.emacs.local/c3-mode.el
+
 (require 'subr-x)
 
 (defvar c3-mode-syntax-table
