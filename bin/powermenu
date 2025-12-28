@@ -6,12 +6,12 @@ case "$(readlink -f /sbin/init)" in
 	*) ctl='loginctl' ;;
 esac
 
-case "$(printf " lock\n󰤄  hibernate\n󰒲  sleep\n  reboot\n⏻  shutdown\n󰠻  display off" | dmenu -i -p 'Action: ')" in
-	' lock') slock ;;
-	'󰤄  hibernate') slock $ctl hibernate -i ;;
-	'󰒲  sleep') slock $ctl suspend -i ;;
-	'  reboot') $ctl reboot -i ;;
-	'⏻  shutdown') $ctl poweroff -i ;;
-	'󰠻  display off') xset dpms force off ;;
+case "$(printf "  Lock\n󰤄  Hibernate\n󰒲  Sleep\n  Reboot\n  Shutdown\n󰠻  Display Off" | dmenu -i -p 'Action: ')" in
+	'  Lock') slock ;;
+	'󰤄  Hibernate') slock $ctl hibernate -i ;;
+	'󰒲  Sleep') slock $ctl suspend -i ;;
+	'  Reboot') $ctl reboot -i ;;
+	'  Shutdown') $ctl poweroff -i ;;
+	'󰠻  Display Off') xset dpms force off ;;
 	*) exit 1 ;;
 esac
