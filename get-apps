@@ -171,7 +171,7 @@ add_pipewire_to_xinitrc() {
 # ===============================
 
 install_all
-install_aur
+# install_aur
 add_pipewire_to_xinitrc
 
 echo "✅ Setup complete!"
