@@ -137,7 +137,7 @@
 
 (setq helm-ff-transformer-show-only-basename nil)
 
-(global-set-key (kbd "C-c h l") 'helm-ls-git-ls)
+(global-set-key (kbd "C-c h l") 'helm-ls-git)
 (global-set-key (kbd "C-c h f") 'helm-find)
 (global-set-key (kbd "C-c h r") 'helm-recentf)
 
