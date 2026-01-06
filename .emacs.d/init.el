@@ -144,6 +144,8 @@
 ;;; yasnippet
 (rc/require 'yasnippet)
 
+(require 'yasnippet)
+
 (setq yas-triggers-in-field nil)
 (setq yas-snippet-dirs '("~/.emacs.d/snippets/"))
 
