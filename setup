@@ -1,0 +1,399 @@
+#!/bin/bash
+set -e
+
+# ===============================
+#      OS DETECTION
+# ===============================
+detect_os() {
+    if command -v pacman >/dev/null 2>&1; then
+        echo "artix"
+    elif command -v xbps-install >/dev/null 2>&1; then
+        echo "void"
+    else
+        echo "unknown"
+    fi
+}
+
+OS=$(detect_os)
+
+if [[ "$OS" == "unknown" ]]; then
+    echo "+ Unsupported OS. This script only supports Artix & Void Linux."
+    exit 1
+fi
+
+echo "+ Detected OS: $OS"
+echo ""
+
+# ===============================
+#      USER PROMPTS
+# ===============================
+read -p "Install DWM or i3? (dwm/i3) " WM
+WM=${WM,,}
+
+read -p "Install Iosevka font? (y/n) " INSTALL_IOSEVKA
+INSTALL_IOSEVKA=${INSTALL_IOSEVKA,,}
+
+# Only ask for JetBrains Mono if OS is Void Linux
+if [[ "$OS" == "void" ]]; then
+    read -p "Install JetBrains Mono Nerd Font? (y/n) " INSTALL_JBM
+    INSTALL_JBM=${INSTALL_JBM,,}
+else
+    INSTALL_JBM="n"
+fi
+
+read -p "Install general apps? (y/n) " INSTALL_APPS
+INSTALL_APPS=${INSTALL_APPS,,}
+
+read -p "Install paru (Artix only)? (y/n) " INSTALL_PARU
+INSTALL_PARU=${INSTALL_PARU,,}
+
+# ===============================
+#      DIRECTORIES & FILES
+# ===============================
+SRC_DIR="$HOME/.local/src"
+DWM_DESKTOP_FILE="./dwm.desktop"
+TOUCHPAD_CONF_FILE="./30-touchpad.conf"
+CUSTOM_BASH_PROFILE="./append_profile"
+CUSTOM_BASHRC="./append_bashrc"
+
+# ===============================
+#      PACKAGE LISTS
+# ===============================
+XORG_TOOLS_ARTIX=(libx11 libxft libxinerama xorg-server xorg-xinit xorg-xrandr base-devel)
+XORG_TOOLS_VOID=(libX11-devel libXft-devel libXinerama-devel xorg-minimal xinit xrandr base-devel wget)
+
+FONT_TOOLS_ARTIX=(ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji ttf-dejavu)
+FONT_TOOLS_VOID=(font-awesome5 dejavu-fonts-ttf noto-fonts-emoji)
+
+I3_TOOLS_ARTIX=(i3-wm i3status)
+I3_TOOLS_VOID=(i3 i3status wget)
+
+AUDIO_ARTIX=(pipewire pipewire-pulse wireplumber pipewire-alsa pavucontrol pulsemixer)
+AUDIO_VOID=(pulseaudio pavucontrol pulsemixer)
+
+POWER_ARTIX=(tlp tlp-runit tlp-rdw thermald thermald-runit lm_sensors lm_sensors-runit)
+POWER_VOID=(tlp tlp-rdw thermald lm_sensors)
+
+OTHER_ARTIX=(base-devel curl wget git polkit sxhkd feh dunst picom github-cli libnotify calcurse cmake nsxiv flameshot ffmpeg ffmpegthumbnailer neovim vim nano mpv vlc qbittorrent cronie cronie-runit libqalculate qalculate-qt man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop slock slop newsboat tesseract tesseract-data-eng unzip tmux)
+OTHER_VOID=(base-devel dbus linux-headers mesa mesa-intel-dri intel-video-accel xf86-video-intel curl wget git polkit sxhkd feh dunst picom github-cli libnotify calcurse make cmake nsxiv flameshot ffmpeg ffmpegthumbnailer neovim vim nano mpv vlc qbittorrent cronie libqalculate qalculate-qt man-pages man-db xclip zathura zathura-pdf-mupdf fzf acpilight htop slock slop newsboat tesseract tesseract-ocr-eng unzip tmux NetworkManager)
+
+# ===============================
+#      PACKAGE INSTALLER
+# ===============================
+install_packages() {
+    local label="$1"
+    shift
+    local pkgs=("$@")
+
+	echo ""
+    echo "+ Installing: $label"
+
+    if [[ "$OS" == "artix" ]]; then
+        sudo pacman -S --needed "${pkgs[@]}"
+    else
+        sudo xbps-install -Sy "${pkgs[@]}"
+    fi
+}
+
+install_mandatory_packages() {
+    if [[ "$WM" == "dwm" ]]; then
+        if [[ "$OS" == "artix" ]]; then
+            install_packages "Xorg Tools" "${XORG_TOOLS_ARTIX[@]}"
+            install_packages "Fonts" "${FONT_TOOLS_ARTIX[@]}"
+        else
+            install_packages "Xorg Tools" "${XORG_TOOLS_VOID[@]}"
+            install_packages "Fonts" "${FONT_TOOLS_VOID[@]}"
+        fi
+    else
+        # i3
+        if [[ "$OS" == "artix" ]]; then
+            install_packages "Xorg Tools" "${XORG_TOOLS_ARTIX[@]}"
+            install_packages "I3 Tools" "${I3_TOOLS_ARTIX[@]}"
+            install_packages "Fonts" "${FONT_TOOLS_ARTIX[@]}"
+        else
+            install_packages "Xorg Tools" "${XORG_TOOLS_VOID[@]}"
+            install_packages "I3 Tools" "${I3_TOOLS_VOID[@]}"
+            install_packages "Fonts" "${FONT_TOOLS_VOID[@]}"
+        fi
+    fi
+}
+
+# ===============================
+#      CONFIG HELPERS
+# ===============================
+safe_append() {
+    local file="$1"
+    local content_file="$2"
+    local marker="# BEGIN custom additions"
+
+    [[ ! -f "$file" ]] && touch "$file"
+
+	echo ""
+    if ! grep -qF "$marker" "$file"; then
+        echo "+ Updating $file..."
+        {
+            echo "$marker"
+            cat "$content_file"
+            echo "# END custom additions"
+        } >> "$file"
+    else
+        echo "+ Already modified: $file"
+    fi
+}
+
+add_marker_block() {
+    local file="$1"
+    local marker="$2"
+    local block="$3"
+
+    [[ ! -f "$file" ]] && touch "$file"
+
+    if ! grep -qF "$marker" "$file"; then
+        echo "+ Adding $marker block to $file"
+        {
+            echo "$marker"
+            printf "%b\n" "$block"
+        } >> "$file"
+    else
+        echo "+ $marker block already present in $file"
+    fi
+}
+
+# ===============================
+#      XINITRC SETUP
+# ===============================
+setup_xinitrc() {
+    local file="$HOME/.xinitrc"
+    [[ ! -f "$file" ]] && touch "$file"
+
+    local pipewire_block="/usr/bin/pipewire &\n/usr/bin/pipewire-pulse &\n/usr/bin/wireplumber &"
+
+    local wallpaper
+    if [[ "$OS" == "artix" ]]; then
+        wallpaper='feh --bg-scale ~/Pictures/wallpaper/artix.png &'
+    else
+        wallpaper='feh --bg-scale ~/Pictures/wallpaper/void-linux.png &'
+    fi
+
+    local wm_block
+    if [[ "$WM" == "dwm" ]]; then
+        wm_block="slstatus &\npicom &\n$wallpaper\nsxhkd -c ~/.config/sxhkd/sxhkdrc &\nexec dwm"
+    else
+        wm_block="picom &\n$wallpaper\nsxhkd -c ~/.config/sxhkd/sxhkdrc &\nexec i3"
+    fi
+
+    add_marker_block "$file" "# BEGIN PIPEWIRE" "$pipewire_block"
+    add_marker_block "$file" "# BEGIN WM_BLOCK" "$wm_block"
+}
+
+# ===============================
+#      TOUCHPAD & DESKTOP CONFIGS
+# ===============================
+copy_configs() {
+	echo ""
+    echo "+ Installing touchpad configuration..."
+    sudo install -Dm644 "$TOUCHPAD_CONF_FILE" /etc/X11/xorg.conf.d/30-touchpad.conf
+
+    if [[ "$WM" == "dwm" ]]; then
+		echo ""
+        echo "+ Installing dwm.desktop..."
+        sudo install -Dm644 "$DWM_DESKTOP_FILE" /usr/share/xsessions/dwm.desktop
+    fi
+}
+
+copy_i3_configs() {
+    mkdir -p "$HOME/.config/i3"
+
+	echo ""
+    if [[ -d ./i3 ]]; then
+        cp -r ./i3/. "$HOME/.config/i3/"
+        echo "+ i3 configuration copied to ~/.config/i3/"
+    else
+        echo "+ i3 config directory './i3' not found."
+    fi
+
+	echo ""
+    if [[ -f .i3status.conf ]]; then
+        cp .i3status.conf "$HOME/"
+        echo "+ .i3status.conf copied to $HOME/"
+    else
+        echo "+ .i3status.conf not found."
+    fi
+}
+
+# ===============================
+#      SUCKLESS BUILD (DWM)
+# ===============================
+clone_and_build_suckless() {
+	echo ""
+    echo "+ Building Suckless tools..."
+
+    declare -A REPOS=(
+        [dwm]="https://github.com/0xfarco/dwm"
+        [slstatus]="https://github.com/0xfarco/slstatus"
+        [dmenu]="https://github.com/0xfarco/dmenu"
+        [st]="https://github.com/0xfarco/st"
+    )
+
+    mkdir -p "$SRC_DIR"
+
+    for name in "${!REPOS[@]}"; do
+        if command -v "$name" >/dev/null 2>&1; then
+            echo "+ $name is already installed — skipping build."
+            continue
+        fi
+
+        repo="${REPOS[$name]}"
+        dest="$SRC_DIR/$name"
+
+        echo "+ Cloning $name..."
+        rm -rf "$dest"
+        git clone "$repo" "$dest"
+
+        echo "+ Building $name..."
+        cd "$dest"
+        make
+        sudo make clean install
+        cd -
+    done
+}
+
+# ===============================
+#      Iosevka Installer
+# ===============================
+install_iosevka() {
+    set -e
+
+    DOWNLOAD_DIR="$HOME/iosevka_zips"
+    EXTRACT_DIR="$HOME/iosevka_extracted"
+    FONT_DIR="/usr/share/fonts"
+
+    for cmd in curl jq unzip; do
+        if ! command -v "$cmd" &>/dev/null; then
+            echo "+ Installing missing dependency: $cmd..."
+            if [[ "$OS" == "artix" ]]; then
+                sudo pacman -Sy --noconfirm "$cmd"
+            else
+                sudo xbps-install -Sy "$cmd"
+            fi
+        fi
+    done
+
+    mkdir -p "$DOWNLOAD_DIR"
+    cd "$DOWNLOAD_DIR"
+
+	echo ""
+    echo "+ Downloading Iosevka variants..."
+    curl -s https://api.github.com/repos/be5invis/Iosevka/releases/latest \
+        | jq -r '.assets[].browser_download_url' \
+        | grep -E 'PkgTTC-(Iosevka(-[^/]+)?|IosevkaAile-[^/]+|IosevkaCurly-[^/]+|IosevkaCurlySlab-[^/]+|IosevkaEtoile-[^/]+|IosevkaSlab-[^/]+)\.zip$' \
+        | while read -r url; do
+            echo "Downloading: $(basename "$url")"
+            curl -L -O --fail "$url"
+        done
+    echo "+ Download complete."
+
+    mkdir -p "$EXTRACT_DIR"
+    for zip in "$DOWNLOAD_DIR"/*.zip; do
+        name="$(basename "$zip" .zip)"
+        dest="$EXTRACT_DIR/$name"
+        echo "+ Extracting: $name"
+        mkdir -p "$dest"
+        unzip -q "$zip" -d "$dest"
+    done
+
+    echo "+ Moving fonts to $FONT_DIR..."
+    sudo mkdir -p "$FONT_DIR"
+    sudo mv "$EXTRACT_DIR"/* "$FONT_DIR"/
+    rm -rf "$DOWNLOAD_DIR" "$EXTRACT_DIR"
+
+    sudo fc-cache -fv
+    echo "+ Iosevka installation complete!"
+}
+
+# ===============================
+#      JetBrains Mono Nerd Font
+# ===============================
+install_nerd_font() {
+    local url="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip"
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    local zip_file="$tmp_dir/JetBrainsMono.zip"
+    local extract_dir="$tmp_dir/JetBrainsMono"
+
+	echo ""
+    echo "+ Downloading JetBrainsMono Nerd Font..."
+    wget -q --show-progress -O "$zip_file" "$url"
+
+    echo "+ Extracting JetBrainsMono.zip..."
+    unzip -q "$zip_file" -d "$extract_dir"
+
+    echo "+ Moving JetBrainsMono fonts to /usr/share/fonts/JetBrainsMono..."
+    sudo mkdir -p /usr/share/fonts/JetBrainsMono
+    sudo cp -r "$extract_dir"/* /usr/share/fonts/JetBrainsMono/
+
+    echo "+ Updating font cache..."
+    sudo fc-cache -fv
+
+    echo "+ JetBrainsMono Nerd Font installed."
+    rm -rf "$tmp_dir"
+}
+
+# ===============================
+#      Apps Installer
+# ===============================
+install_apps() {
+    if [[ "$OS" == "artix" ]]; then
+        install_packages "Pipewire" "${AUDIO_ARTIX[@]}"
+        install_packages "Power Tools" "${POWER_ARTIX[@]}"
+        install_packages "Other Tools" "${OTHER_ARTIX[@]}"
+    else
+        install_packages "Pulseaudio" "${AUDIO_VOID[@]}"
+        install_packages "Power Tools" "${POWER_VOID[@]}"
+        install_packages "Other Tools" "${OTHER_VOID[@]}"
+    fi
+}
+
+# ===============================
+#      AUR Helper (Artix only)
+# ===============================
+install_paru() {
+    if [[ "$OS" != "artix" || "$INSTALL_PARU" != "y" ]]; then return; fi
+
+	echo ""
+    if command -v paru &>/dev/null; then
+        echo "+ paru already installed"
+        return
+    fi
+
+	echo ""
+    echo "+ Installing paru..."
+    sudo pacman -S --needed git base-devel
+
+    local AUR_HELPER_DIR="$HOME/.local/src/paru"
+    rm -rf "$AUR_HELPER_DIR"
+    git clone https://aur.archlinux.org/paru.git "$AUR_HELPER_DIR"
+    cd "$AUR_HELPER_DIR"
+    makepkg -si
+    cd -
+}
+
+# ===============================
+#      EXECUTION
+# ===============================
+install_mandatory_packages
+copy_configs
+[[ "$WM" == "i3" ]] && copy_i3_configs
+setup_xinitrc
+safe_append "$HOME/.bash_profile" "$CUSTOM_BASH_PROFILE"
+safe_append "$HOME/.bashrc" "$CUSTOM_BASHRC"
+
+[[ "$WM" == "dwm" ]] && clone_and_build_suckless
+[[ "$INSTALL_IOSEVKA" == "y" ]] && install_iosevka
+[[ "$INSTALL_JBM" == "y" && "$OS" == "void" ]] && install_nerd_font
+[[ "$INSTALL_APPS" == "y" ]] && install_apps
+install_paru
+
+echo ""
+echo "+ Setup complete!"
+
