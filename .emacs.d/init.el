@@ -5,6 +5,7 @@
 (add-to-list 'load-path "~/.emacs.d/lang/")
 
 (load "~/.emacs.d/misc/emacs-rc.el")
+(load "~/.emacs.d/misc/org-mode-rc.el")
 
 ;;; Appearance
 (defun rc/get-default-font ()
