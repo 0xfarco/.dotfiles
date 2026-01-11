@@ -85,3 +85,24 @@
   (rgrep (buffer-substring-no-properties beg end) "*" (pwd)))
 
 (global-set-key (kbd "C-x p s") 'rc/rgrep-selected)
+
+;; Terminal Toggle
+(add-to-list
+ 'display-buffer-alist
+ '("\\*vterm\\*"
+   (display-buffer-reuse-window
+    display-buffer-below-selected)
+   (window-height . 0.3)))
+
+(defun my/vterm-toggle ()
+  "Toggle vterm in a horizontal split and focus it."
+  (interactive)
+  (let ((buf "*vterm*"))
+    (if-let ((win (get-buffer-window buf)))
+        (delete-window win)
+      (select-window
+       (if (get-buffer buf)
+           (display-buffer buf)
+         (get-buffer-window (vterm)))))))
+
+(global-set-key (kbd "C-c v") #'my/vterm-toggle)
