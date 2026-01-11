@@ -23,6 +23,14 @@
 (global-display-line-numbers-mode 1)
 (electric-pair-mode 1)
 
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
+(global-set-key (kbd "C-S-<left>")  #'shrink-window-horizontally)
+(global-set-key (kbd "C-S-<right>") #'enlarge-window-horizontally)
+(global-set-key (kbd "C-S-<down>")  #'shrink-window)
+(global-set-key (kbd "C-S-<up>")    #'enlarge-window)
+
 (setq display-line-numbers-type 'relative)
 
 (setq-default inhibit-splash-screen t
