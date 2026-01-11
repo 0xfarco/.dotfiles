@@ -1,5 +1,8 @@
 (setq custom-file "~/.emacs.d/.emacs.custom.el")
 
+;; Only show errors (suppress warnings/info)
+(setq warning-minimum-level :error)
+
 (package-initialize)
 
 (add-to-list 'load-path "~/.emacs.d/lang/")
