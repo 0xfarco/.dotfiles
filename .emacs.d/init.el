@@ -43,6 +43,8 @@
 			compilation-scroll-output t)
 
 (rc/require-theme 'gruber-darker)
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+;; (load-theme 'doom-ayu-dark t)
 
 ;; which key
 (rc/require 'which-key)
