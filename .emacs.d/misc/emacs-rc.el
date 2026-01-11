@@ -31,9 +31,6 @@
 (rc/require 'dash)
 (require 'dash)
 
-(rc/require 'dash-functional)
-(require 'dash-functional)
-
 (defun rc/duplicate-line ()
   "Duplicate current line"
   (interactive)
