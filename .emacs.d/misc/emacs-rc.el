@@ -43,7 +43,7 @@
     (move-beginning-of-line 1)
     (forward-char column)))
 
-(global-set-key (kbd "C-,") 'rc/duplicate-line)
+(global-set-key (kbd "C-.") 'rc/duplicate-line)
 
 (defun rc/buffer-file-name ()
   (if (equal major-mode 'dired-mode)
