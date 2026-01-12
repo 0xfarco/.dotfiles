@@ -64,6 +64,15 @@
 ;; This is your old M-x.
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
+;;; helm
+(rc/require 'helm 'helm-ls-git)
+
+(setq helm-ff-transformer-show-only-basename nil)
+
+(global-set-key (kbd "C-c h l") 'helm-ls-git)
+(global-set-key (kbd "C-c h f") 'helm-find)
+(global-set-key (kbd "C-c h r") 'helm-recentf)
+
 ;;; c-mode
 (setq-default c-basic-offset 4
               c-default-style '((java-mode . "java")
@@ -145,15 +154,6 @@
 (setq-default dired-dwim-target t)
 (setq dired-listing-switches "-alh")
 (setq dired-mouse-drag-files t)
-
-;;; helm
-(rc/require 'helm 'helm-ls-git)
-
-(setq helm-ff-transformer-show-only-basename nil)
-
-(global-set-key (kbd "C-c h l") 'helm-ls-git)
-(global-set-key (kbd "C-c h f") 'helm-find)
-(global-set-key (kbd "C-c h r") 'helm-recentf)
 
 ;;; yasnippet
 (rc/require 'yasnippet)
