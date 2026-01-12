@@ -31,11 +31,6 @@
 (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
 (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
-(global-set-key (kbd "C-,") #'shrink-window-horizontally)
-(global-set-key (kbd "C-.") #'enlarge-window-horizontally)
-(global-set-key (kbd "C-'") #'shrink-window)
-(global-set-key (kbd "C-;") #'enlarge-window)
-
 (setq display-line-numbers-type 'relative)
 
 (setq-default inhibit-splash-screen t
