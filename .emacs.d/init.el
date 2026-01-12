@@ -265,6 +265,7 @@
   'js2-mode
   'rjsx-mode
   'dockerfile-mode
+  'graphql-mode
   )
 
 ;; astyle buffer
