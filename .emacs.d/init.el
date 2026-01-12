@@ -265,16 +265,13 @@
   'dockerfile-mode
   )
 
+;; astyle buffer
 (defun astyle-buffer (&optional justify)
   (interactive)
-  (let ((saved-line-number (line-number-at-pos)))
-    (shell-command-on-region
-     (point-min)
-     (point-max)
-     "astyle --style=kr"
-     nil
-     t)
-    (goto-line saved-line-number)))
+  (let ((saved-line (line-number-at-pos)))
+    (shell-command-on-region (point-min) (point-max) "astyle --style=kr" nil t)
+    (goto-char (point-min))
+    (forward-line (1- saved-line))))
 
 (add-hook 'simpc-mode-hook
           (lambda ()
