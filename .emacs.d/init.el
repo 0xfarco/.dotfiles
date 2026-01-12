@@ -51,27 +51,59 @@
 (which-key-mode 1)
 
 ;;; ido
-(rc/require 'smex 'ido-completing-read+)
+;; (rc/require 'smex 'ido-completing-read+)
 
-(require 'ido-completing-read+)
+;; (require 'ido-completing-read+)
 
-(ido-mode 1)
-(ido-everywhere 1)
-(ido-ubiquitous-mode 1)
+;; (ido-mode 1)
+;; (ido-everywhere 1)
+;; (ido-ubiquitous-mode 1)
 
-(global-set-key (kbd "M-x") 'smex)
+;; (global-set-key (kbd "M-x") 'smex)
 ;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 ;; This is your old M-x.
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+;; (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
 ;;; helm
-(rc/require 'helm 'helm-ls-git)
+;; (rc/require 'helm 'helm-ls-git)
 
-(setq helm-ff-transformer-show-only-basename nil)
+;; (setq helm-ff-transformer-show-only-basename nil)
 
-(global-set-key (kbd "C-c h l") 'helm-ls-git)
-(global-set-key (kbd "C-c h f") 'helm-find)
-(global-set-key (kbd "C-c h r") 'helm-recentf)
+;; (global-set-key (kbd "C-c h l") 'helm-ls-git)
+;; (global-set-key (kbd "C-c h f") 'helm-find)
+;; (global-set-key (kbd "C-c h r") 'helm-recentf)
+
+;;; counsel
+(rc/require 'counsel)
+
+(counsel-mode 1)
+(setq ivy-initial-inputs-alist nil) ;; removes starting ^ regex in M-x
+
+;;; ivy
+(rc/require 'ivy)
+
+(ivy-mode 1)
+(setopt ivy-use-virtual-buffers t)
+(setopt enable-recursive-minibuffers t)
+(setq ivy-count-format "(%d/%d) ")
+;; Enable this if you want `swiper' to use it:
+;; (setopt search-default-mode #'char-fold-to-regexp)
+(keymap-global-set "C-s" #'swiper-isearch)
+(keymap-global-set "C-c C-r" #'ivy-resume)
+(keymap-global-set "<f6>" #'ivy-resume)
+(keymap-global-set "M-x" #'counsel-M-x)
+(keymap-global-set "C-x C-f" #'counsel-find-file)
+(keymap-global-set "<f1> f" #'counsel-describe-function)
+(keymap-global-set "<f1> v" #'counsel-describe-variable)
+(keymap-global-set "<f1> o" #'counsel-describe-symbol)
+(keymap-global-set "<f1> l" #'counsel-find-library)
+(keymap-global-set "<f2> i" #'counsel-info-lookup-symbol)
+(keymap-global-set "<f2> u" #'counsel-unicode-char)
+(keymap-global-set "C-c g" #'counsel-git)
+(keymap-global-set "C-c j" #'counsel-git-grep)
+(keymap-global-set "C-c k" #'counsel-ag)
+(keymap-global-set "C-x l" #'counsel-locate)
+(keymap-set minibuffer-local-map "C-r" #'counsel-minibuffer-history)
 
 ;;; c-mode
 (setq-default c-basic-offset 4
@@ -221,7 +253,7 @@
 (global-set-key (kbd "M-n") 'move-text-down)
 
 ;;; Packages that don't require configuration
-(rc/require 
+(rc/require
   'go-mode
   'rust-mode
   'php-mode
