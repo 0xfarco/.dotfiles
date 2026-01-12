@@ -95,6 +95,7 @@
 (keymap-global-set "<f6>" #'ivy-resume)
 (keymap-global-set "M-x" #'counsel-M-x)
 (keymap-global-set "C-x C-f" #'counsel-find-file)
+(keymap-global-set "C-c r" #'counsel-recentf)
 (keymap-global-set "<f1> f" #'counsel-describe-function)
 (keymap-global-set "<f1> v" #'counsel-describe-variable)
 (keymap-global-set "<f1> o" #'counsel-describe-symbol)
