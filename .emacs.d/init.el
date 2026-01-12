@@ -31,10 +31,10 @@
 (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
 (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 
-(global-set-key (kbd "s-<left>")  #'shrink-window-horizontally)
-(global-set-key (kbd "s-<right>") #'enlarge-window-horizontally)
-(global-set-key (kbd "s-<down>")  #'shrink-window)
-(global-set-key (kbd "s-<up>")    #'enlarge-window)
+(global-set-key (kbd "C-,") #'shrink-window-horizontally)
+(global-set-key (kbd "C-.") #'enlarge-window-horizontally)
+(global-set-key (kbd "C-'") #'shrink-window)
+(global-set-key (kbd "C-;") #'enlarge-window)
 
 (setq display-line-numbers-type 'relative)
 
