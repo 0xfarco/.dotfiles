@@ -1,30 +1,45 @@
 XF86MonBrightnessDown
-  xbacklight -dec 5
+	xbacklight -dec 5
 
 XF86MonBrightnessUp
-  xbacklight -inc 5
+	xbacklight -inc 5
 
 XF86Audio{Raise,Lower}Volume  
-  pulsemixer --change-volume {+,-}1  
+	pulsemixer --change-volume {+,-}1  
  
 XF86AudioMute  
-  pulsemixer  --toggle-mute
-
-super + shift + w
-  camtoggle
-
-super + shift + p
-  powermenu
-
-super + shift + g
-  notify-send "Appointments" "$(calcurse -d 3)"
-
-super + F1
-  zoomer
+	pulsemixer  --toggle-mute
 
 Print
-  flameshot gui
+	flameshot gui
 
-super + shift + n
-  st -e nmtui
+super + s ; p
+	powermenu
+
+super + s ; n
+	st -e nmtui
+
+super + s ; s
+	flameshot gui
+
+super + s ; a
+	notify-send "Appointments" "$(calcurse -d 3)"
+
+super + a ; b 
+	$BROWSER
+
+super + a ; w
+	camtoggle
+
+super + a ; z
+	zoomer
+
+super + a ; c
+	qalculate-qt
+
+super + a ; e ; d
+	fmacsd
+
+super + a ; e ; e
+	fmacs
 
